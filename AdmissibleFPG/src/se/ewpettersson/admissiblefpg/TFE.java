@@ -33,5 +33,9 @@ public class TFE {
 		return 0;
 	}
 	
+	public String toString() {
+		String s="[" + tet + ", "+face+", "+edge+"]";
+		return s;
+	}
 	
 }
