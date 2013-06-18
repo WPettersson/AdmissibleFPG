@@ -4,6 +4,15 @@ public class Gluing {
 	
 	// Edges are, in order, 01, 02, 03, 12, 13, 23.
 	
+	public Gluing(int sym, int t1, int f1, int t2, int f2) {
+		super();
+		this.sym = sym;
+		this.t1 = t1;
+		this.t2 = t2;
+		this.f1 = f1;
+		this.f2 = f2;
+	}
+
 	// The three faces about a face, such that FACE_EDGES[f] give the three edges about face "f"
 	public static int[][] FACE_EDGES = {{4,5,6},{2,3,6},{1,3,5},{1,2,4}};
 	
@@ -39,19 +48,38 @@ public class Gluing {
 	public TVE[][] getTVEPairs() {
 		TVE[][] pairs = new TVE[3][2];
 		int i=0;
+		// For each vertex v
 		for(int vert = 0 ; vert < 4; vert++) {
 			if (vert == f1) {
 				continue;
 			}
-			pairs[i][0] = new TVE(t1,vert, OPP_EDGE[f1][vert]);
 			
+			// Find the edge on f1 opposite vert
+			int edge1 = OPP_EDGE[f1][vert];
+			pairs[i][0] = new TVE(t1,vert, edge1);
+			
+			// Find the index of vert in the FACE_VERTICES array for this face 
+			// We do this so we can apply the symmetry-gluing to vert
 			int vertIndex = 0;
 			while (FACE_VERTICES[f1][vertIndex] != vert) {
-				vertIndex+=1;
+				vertIndex += 1;
 			}
 			
+			// Get the second vertex by using VERT_SYM_MAP
+			int vert2 = FACE_VERTICES[f2][VERT_SYM_MAP[sym][vertIndex]];
 			
-		    pairs[i][1] = new TVE(t2,vert, OPP_EDGE[f2][vert]);
+			// Find the index of the first edge in FACE_EDGES
+			int edgeIndex = 0;
+			while (FACE_EDGES[f1][edgeIndex] != edge1) {
+				edgeIndex += 1;
+			}
+			
+			// Translate through the gluing and don't forget orientation.
+			int edge2 = EDGE_ORIENT_MAP[sym][edgeIndex]*FACE_EDGES[f2][EDGE_SYM_MAP[sym][edgeIndex]];
+				
+			// Create second TVE.
+		    pairs[i][1] = new TVE(t2,vert2,edge2);
+		    i+=1;
 		}
 		return pairs;
 		
@@ -70,5 +98,7 @@ public class Gluing {
 		
 		return pairs;
 	}
+	
+
 }
 
