@@ -8,7 +8,7 @@ import org.junit.Test;
 import se.ewpettersson.admissiblefpg.EdgeConfig;
 import se.ewpettersson.admissiblefpg.TFE;
 
-public class testEdgeConfig {
+public class TestEdgeConfig {
 	@Test
 	public void doTestCombine(){
 		List<TFE[]> start = new ArrayList<TFE[]>();
