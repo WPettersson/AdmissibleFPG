@@ -38,4 +38,8 @@ public class TFE {
 		return s;
 	}
 	
+	public boolean equals(TFE other) {
+		return (tet == other.tet) && (face == other.face) && (edge == other.edge);  
+	}
+	
 }
