@@ -1,4 +1,4 @@
-package tests;
+package se.ewpettersson.admissiblefpg.tests;
 
 import static org.junit.Assert.*;
 

@@ -1,4 +1,4 @@
-package tests;
+package se.ewpettersson.admissiblefpg.tests;
 
 import java.util.ArrayList;
 import java.util.List;
