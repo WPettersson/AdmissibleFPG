@@ -196,7 +196,7 @@ public class VertexConfig {
 				if (!link[linkCounter].equals(temp.data)) {
 					return false;
 				}
-				temp = temp.getNext();
+				temp = temp.getPrev();
 			}
 		}
 		return true;
