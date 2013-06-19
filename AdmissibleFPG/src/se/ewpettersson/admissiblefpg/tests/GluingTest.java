@@ -43,9 +43,9 @@ public class GluingTest {
 		TFE[][] tfe = g.getTFEPairs();
 		assertTrue(tfe.length==3);
 		// Should have the 3 gluings:
-		// A (0,0,6)-(0,0,5)
-		// B (0,2,3)-(0,1,3)
-		// C (0,3,2)-(0,3,1)
+		// A (0,1,2)-(0,2,1)
+		// B (0,1,3)-(0,2,3)
+		// C (0,1,6)-(0,2,5)
 		
 		TFE[][] toFind = {{new TFE(0,1,2), new TFE(0,2,1)},
 		                  {new TFE(0,1,3), new TFE(0,2,3)},
