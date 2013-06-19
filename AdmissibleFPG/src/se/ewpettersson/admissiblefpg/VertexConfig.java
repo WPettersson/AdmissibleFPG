@@ -8,45 +8,41 @@ import java.util.Map;
 import se.ewpettersson.admissiblefpg.util.CircularListNode;
 
 public class VertexConfig {
+	
+	// Maps a tet+vertex to a list of other pairs which have been squeezed together.
+	// Note that the entries in the list are formed using the "combine" function.
 	Map<Integer, Map<Integer, List<Integer>>> equiv; 
+	
+	// Maps a tet+vertex pair (formed using combine()) to a number indicating how many of the edges about
+	// this tet+vertex pair are on the boundary still.
+	Map<Integer, Integer> onBoundary;
 	Map<Integer, Map<Integer, Map<Integer, CircularListNode<TVE>>>> links;
 	
 	public void addTetrahedra(int id) {
 		
 		Map<Integer, List<Integer>> tet = new HashMap<Integer,List<Integer>>();
-
+		Map<Integer, Map<Integer, CircularListNode<TVE>>> tetLinks = new HashMap<Integer, Map<Integer, CircularListNode<TVE>>>();
+		
+		Map<Integer, CircularListNode<TVE>> vertLink;
 		List<Integer> vert;
 		for(int i=0; i<4; i++) {
 			vert = new LinkedList<Integer>();
 			vert.add(combine( id, i));
 			tet.put(i, vert);
+			onBoundary.put(combine(id,i), 3);
+			
+			vertLink = new HashMap<Integer, CircularListNode<TVE>>();
+			tetLinks.put(i, vertLink);
+			
 		}
-
 		
 		equiv.put(id, tet);
-		
-		Map<Integer, Map<Integer, CircularListNode<TVE>>> tetLinks = new HashMap<Integer, Map<Integer, CircularListNode<TVE>>>();
-		
-		Map<Integer, CircularListNode<TVE>> vertLink = new HashMap<Integer, CircularListNode<TVE>>();
-		
-		tetLinks.put(0, vertLink);
-		vertLink = new HashMap<Integer, CircularListNode<TVE>>();
-		tetLinks.put(1, vertLink);
-		vertLink = new HashMap<Integer, CircularListNode<TVE>>();
-		tetLinks.put(2, vertLink);
-		vertLink = new HashMap<Integer, CircularListNode<TVE>>();
-		tetLinks.put(3, vertLink);
-		
 		links.put(id, tetLinks);
 		
 		createTriple(new TVE(id,0,-4), new TVE(id,0,5), new TVE(id,0,-6));
 		createTriple(new TVE(id,1,2), new TVE(id,1,6), new TVE(id,1,-3));
 		createTriple(new TVE(id,2,-1), new TVE(id,2,3), new TVE(id,2,-5));
 		createTriple(new TVE(id,3,4), new TVE(id,3,-2), new TVE(id,3,1));
-		
-		//List<TVE> equivList = new LinkedList<TVE>();
-		
-		
 		
 	}
 	
@@ -69,6 +65,7 @@ public class VertexConfig {
 	public VertexConfig() {
 		equiv = new HashMap<Integer,Map<Integer,List<Integer>>>();
 		links = new HashMap<Integer,Map<Integer,Map<Integer,CircularListNode<TVE>>>>();
+		onBoundary = new HashMap<Integer, Integer>();
 	}
 	
 	public boolean addGluing(TVE [] gluing) {
@@ -138,6 +135,9 @@ public class VertexConfig {
 			equiv_list.add(combined);
 		}
 		
+		// Note that each of these tetrahedra/vertex pairs have one less boundary edge.
+		onBoundary.put(combine(gluing[0].tet,gluing[0].vertex),onBoundary.get(gluing[0].tet)-1);
+		onBoundary.put(combine(gluing[1].tet,gluing[1].vertex),onBoundary.get(gluing[1].tet)-1);
 
 			
 		return true;
@@ -199,6 +199,12 @@ public class VertexConfig {
 				temp = temp.getPrev();
 			}
 		}
+		return true;
+	}
+	
+	public boolean equalOnBoundary(VertexConfig other) {
+		
+		
 		return true;
 	}
 }
