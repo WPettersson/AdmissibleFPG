@@ -15,15 +15,13 @@ public class VertexConfig {
 		
 		Map<Integer, List<Integer>> tet = new HashMap<Integer,List<Integer>>();
 
-		List<Integer> vert = new LinkedList<Integer>();
-		
-		tet.put(0,vert);
-		vert = new LinkedList<Integer>();
-		tet.put(1,vert);
-		vert = new LinkedList<Integer>();
-		tet.put(2, vert);
-		vert = new LinkedList<Integer>();
-		tet.put(3, vert);
+		List<Integer> vert;
+		for(int i=0; i<4; i++) {
+			vert = new LinkedList<Integer>();
+			vert.add(combine( id, i));
+			tet.put(i, vert);
+		}
+
 		
 		equiv.put(id, tet);
 		
