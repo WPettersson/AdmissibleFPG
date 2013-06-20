@@ -4,6 +4,7 @@ import java.util.List;
 
 public class Edge {
 	List<Vertex> endPoints;
+	boolean used;
 
 	public List<Vertex> getEndPoints() {
 		return endPoints;
@@ -12,5 +13,23 @@ public class Edge {
 	public Vertex get(int i) {
 		return endPoints.get(i);
 	}
+	
+	public boolean touches(Vertex v) {
+		return endPoints.contains(v);
+	}
 
+	public Vertex getOther(Vertex v) {
+		if (endPoints.get(0) == v) {
+			return endPoints.get(1);
+		}
+		return endPoints.get(0);
+	}
+
+	public boolean isUsed() {
+		return used;
+	}
+	
+	public void use() {
+		used = true;
+	}
 }

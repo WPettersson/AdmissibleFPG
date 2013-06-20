@@ -16,16 +16,28 @@ public class VertexConfig {
 	// Note that the entries in the list are formed using the "combine" function.
 	Map<Integer, List<Integer>> equiv; 
 	
+	public Map<Integer, List<Integer>> getEquiv() {
+		return equiv;
+	}
+
+	public Map<Integer, Integer> getOnBoundary() {
+		return onBoundary;
+	}
+
+	public Map<Integer, Map<Integer, Map<Integer, CircularListNode>>> getLinks() {
+		return links;
+	}
+
 	// Maps a tet+vertex pair (formed using combine()) to a number indicating how many of the edges about
 	// this tet+vertex pair are on the boundary still.
 	Map<Integer, Integer> onBoundary;
-	Map<Integer, Map<Integer, Map<Integer, CircularListNode<TVE>>>> links;
+	Map<Integer, Map<Integer, Map<Integer, CircularListNode>>> links;
 	
 	public void addTetrahedra(int id) {
 		
-		Map<Integer, Map<Integer, CircularListNode<TVE>>> tetLinks = new HashMap<Integer, Map<Integer, CircularListNode<TVE>>>();
+		Map<Integer, Map<Integer, CircularListNode>> tetLinks = new HashMap<Integer, Map<Integer, CircularListNode>>();
 		
-		Map<Integer, CircularListNode<TVE>> vertLink;
+		Map<Integer, CircularListNode> vertLink;
 		List<Integer> vert;
 		for(int i=0; i<4; i++) {
 			vert = new ArrayList<Integer>();
@@ -34,7 +46,7 @@ public class VertexConfig {
 
 			onBoundary.put(combine(id,i), 3);
 			
-			vertLink = new HashMap<Integer, CircularListNode<TVE>>();
+			vertLink = new HashMap<Integer, CircularListNode>();
 			tetLinks.put(i, vertLink);
 			
 		}
@@ -49,9 +61,9 @@ public class VertexConfig {
 	
 	private void createTriple(TVE tve, TVE tve2, TVE tve3) {
 
-		CircularListNode<TVE> a = new CircularListNode<TVE>(tve);
-		CircularListNode<TVE> b = new CircularListNode<TVE>(tve2);
-		CircularListNode<TVE> c = new CircularListNode<TVE>(tve3);
+		CircularListNode a = new CircularListNode(tve);
+		CircularListNode b = new CircularListNode(tve2);
+		CircularListNode c = new CircularListNode(tve3);
 		links.get(tve.tet).get(tve.vertex).put(Math.abs(tve.edge),a);
 		links.get(tve2.tet).get(tve2.vertex).put(Math.abs(tve2.edge),b);
 		links.get(tve3.tet).get(tve3.vertex).put(Math.abs(tve3.edge),c);
@@ -65,17 +77,54 @@ public class VertexConfig {
 
 	public VertexConfig() {
 		equiv = new HashMap<Integer,List<Integer>>();
-		links = new HashMap<Integer,Map<Integer,Map<Integer,CircularListNode<TVE>>>>();
+		links = new HashMap<Integer,Map<Integer,Map<Integer,CircularListNode>>>();
 		onBoundary = new HashMap<Integer, Integer>();
 	}
 	
+	public VertexConfig(VertexConfig vc) {
+		equiv = new HashMap<Integer,List<Integer>>();
+		links = new HashMap<Integer,Map<Integer,Map<Integer,CircularListNode>>>();
+		onBoundary = new HashMap<Integer, Integer>();
+		
+		// Deep cloning the annoying way.
+		for( Integer key: vc.getEquiv().keySet()) {
+			List<Integer> cloneList = vc.getEquiv().get(key);
+			List<Integer> newList = new ArrayList<Integer>();
+			for(Integer elt: cloneList) {
+				Integer newInt = new Integer(elt);
+				newList.add(newInt);
+			}
+			equiv.put(key, newList);
+		}
+		
+		for( Integer key: vc.getOnBoundary().keySet() ) {
+			Integer onBdry = new Integer(vc.getOnBoundary().get(key));
+			onBoundary.put(key, onBdry);
+		}
+		
+		for( Integer key: vc.getLinks().keySet() ) {
+			Map<Integer,Map<Integer,CircularListNode>> cloneMap = vc.getLinks().get(key);
+			Map<Integer,Map<Integer,CircularListNode>> newMap = new HashMap<Integer,Map<Integer,CircularListNode>>();
+			for( Integer key2: cloneMap.keySet()) {
+				Map<Integer,CircularListNode> cloneMap2 = cloneMap.get(key2);
+				Map<Integer,CircularListNode> newMap2 = new HashMap<Integer,CircularListNode>();
+				for( Integer key3: cloneMap2.keySet()) {
+					CircularListNode node = new CircularListNode(cloneMap2.get(key3));
+					newMap2.put(key3, node);
+				}
+				newMap.put(key2, newMap2);
+			}
+			links.put(key, newMap);
+		}
+	}
+
 	public boolean addGluing(TVE [] gluing) {
-		CircularListNode<TVE> linkA = links.get(gluing[0].tet).get(gluing[0].vertex).get(Math.abs(gluing[0].edge));
-		CircularListNode<TVE> linkB = links.get(gluing[1].tet).get(gluing[1].vertex).get(Math.abs(gluing[1].edge));
+		CircularListNode linkA = links.get(gluing[0].tet).get(gluing[0].vertex).get(Math.abs(gluing[0].edge));
+		CircularListNode linkB = links.get(gluing[1].tet).get(gluing[1].vertex).get(Math.abs(gluing[1].edge));
 		
 		// Check to see if the two link-arcs are on the same puncture.
 		boolean samePuncture = false;
-		CircularListNode<TVE> temp = linkA.getNext();
+		CircularListNode temp = linkA.getNext();
 		boolean reverseOrient = (gluing[0].edge * gluing[1].edge < 0);
 		while ( temp != linkA ) {
 			if ( temp == linkB ) {
@@ -104,10 +153,10 @@ public class VertexConfig {
 			}
 			// No need to reverse linkB, linkA and linkB will disappear now.
 		}
-		CircularListNode<TVE> prevA = linkA.getPrev();
-		CircularListNode<TVE> prevB = linkB.getPrev();
-		CircularListNode<TVE> nextA = linkA.getNext();
-		CircularListNode<TVE> nextB = linkB.getNext();
+		CircularListNode prevA = linkA.getPrev();
+		CircularListNode prevB = linkB.getPrev();
+		CircularListNode nextA = linkA.getNext();
+		CircularListNode nextB = linkB.getNext();
 		
 		if (prevA != linkA && prevA != linkB) {
 			prevA.setNext(nextB);
@@ -169,13 +218,13 @@ public class VertexConfig {
 	public String toString() {
 		String s= equiv.toString() + "\n";
 		s+= "[";
-		List<CircularListNode<TVE>> done = new LinkedList<CircularListNode<TVE>>();
-		for ( Map<Integer,Map<Integer,CircularListNode<TVE>>> m1 : links.values()) {
-			for ( Map<Integer, CircularListNode<TVE>> m2 : m1.values()) {
-				for (CircularListNode<TVE> n : m2.values()) {
+		List<CircularListNode> done = new LinkedList<CircularListNode>();
+		for ( Map<Integer,Map<Integer,CircularListNode>> m1 : links.values()) {
+			for ( Map<Integer, CircularListNode> m2 : m1.values()) {
+				for (CircularListNode n : m2.values()) {
 					if (! done.contains(n)) {
 						s+="[";
-						CircularListNode<TVE> t = n.getNext();
+						CircularListNode t = n.getNext();
 						s+= n.toString() + ", ";
 						while ( t != n) {
 							s+= t.toString() + ", ";
@@ -196,10 +245,10 @@ public class VertexConfig {
 	}
 
 	public boolean containsLink(TVE[] link) {
-		CircularListNode<TVE> linkStart = links.get(link[0].tet).get(link[0].vertex).get(Math.abs(link[0].edge));
+		CircularListNode linkStart = links.get(link[0].tet).get(link[0].vertex).get(Math.abs(link[0].edge));
 		int linkCounter = 0;
 		if (linkStart.data.edge == link[0].edge) { // Correct direction
-			CircularListNode<TVE> temp = linkStart.getNext();
+			CircularListNode temp = linkStart.getNext();
 			while ( temp != linkStart ) {
 				linkCounter+=1;
 				if (!link[linkCounter].equals(temp.data)) {
@@ -208,7 +257,7 @@ public class VertexConfig {
 				temp = temp.getNext();
 			}
 		} else { // Reverse direction
-			CircularListNode<TVE> temp = linkStart.getPrev();
+			CircularListNode temp = linkStart.getPrev();
 			while ( temp != linkStart ) {
 				linkCounter+=1;
 				link[linkCounter].edge = -link[linkCounter].edge;
@@ -231,5 +280,12 @@ public class VertexConfig {
 			}
 		}
 		return true;
+	}
+
+	public void mergeWith(VertexConfig vc) {
+		links.putAll(vc.getLinks());
+		equiv.putAll(vc.getEquiv());
+		onBoundary.putAll(vc.getOnBoundary());
+		
 	}
 }

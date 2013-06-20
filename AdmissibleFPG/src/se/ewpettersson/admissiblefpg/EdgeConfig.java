@@ -11,6 +11,18 @@ public class EdgeConfig {
 
 	}
 
+	public EdgeConfig(EdgeConfig ec) {
+		pairs = new LinkedList<TFE[]>();
+		for(TFE[] entry: ec.getPairs()) {
+			TFE[] newEntry = entry.clone();
+			pairs.add(newEntry);
+		}
+	}
+
+	public List<TFE[]> getPairs() {
+		return pairs;
+	}
+
 	public void addTetrahedra(int i) {
 		TFE[] pair = new TFE[2];
 
@@ -140,5 +152,19 @@ public class EdgeConfig {
 			}
 		}
 		return false;
+	}
+	
+	public boolean equals(EdgeConfig other) {
+		for(TFE p[]: pairs) {
+			if( ! other.pairs(p[0], p[1])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public void mergeWith(EdgeConfig ec) {
+		pairs.addAll(ec.getPairs());
+		
 	}
 }

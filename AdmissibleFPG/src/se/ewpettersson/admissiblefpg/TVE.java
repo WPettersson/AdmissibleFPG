@@ -10,6 +10,14 @@ public class TVE {
 
 
 
+	public TVE(TVE data) {
+		this.tet = data.tet;
+		this.vertex = data.vertex;
+		this.edge = data.edge;
+	}
+
+
+
 	public int tet;
 	public int vertex;
 	public int edge;

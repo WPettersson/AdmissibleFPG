@@ -1,29 +1,41 @@
 package se.ewpettersson.admissiblefpg.util;
 
-public class CircularListNode<E> {
+import se.ewpettersson.admissiblefpg.TVE;
 
-	public E data;
-	CircularListNode<E> next;
-	CircularListNode<E> prev;
+public class CircularListNode {
+
+	public TVE data;
+	CircularListNode next;
+	CircularListNode prev;
 	
-	public CircularListNode(E e) {
+	public CircularListNode(TVE e) {
 		data = e;
 	}
 	
-	public CircularListNode<E> getNext() {
+	public CircularListNode(CircularListNode c) {
+		next = c.getNext();
+		prev = c.getPrev();
+		data = new TVE(c.getData());
+	}
+	
+	public CircularListNode getNext() {
 		return next;
 	}
-	public void setNext(CircularListNode<E> next) {
+	public void setNext(CircularListNode next) {
 		this.next = next;
 	}
-	public CircularListNode<E> getPrev() {
+	public CircularListNode getPrev() {
 		return prev;
 	}
-	public void setPrev(CircularListNode<E> prev) {
+	public void setPrev(CircularListNode prev) {
 		this.prev = prev;
 	}
 	
 	public String toString() {
 		return data.toString();
+	}
+	
+	public TVE getData() {
+		return data;
 	}
 }

@@ -13,6 +13,22 @@ public class Gluing {
 		this.f2 = f2;
 	}
 
+	public int getT1() {
+		return t1;
+	}
+
+	public int getT2() {
+		return t2;
+	}
+
+	public int getF1() {
+		return f1;
+	}
+
+	public int getF2() {
+		return f2;
+	}
+
 	// The three faces about a face, such that FACE_EDGES[f] give the three edges about face "f"
 	public static int[][] FACE_EDGES = {{4,5,6},{2,3,6},{1,3,5},{1,2,4}};
 	
