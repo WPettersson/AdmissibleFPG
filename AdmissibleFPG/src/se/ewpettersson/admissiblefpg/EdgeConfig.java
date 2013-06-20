@@ -1,13 +1,50 @@
 package se.ewpettersson.admissiblefpg;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class EdgeConfig {
-	public EdgeConfig(List<TFE[]> pairs) {
+	public EdgeConfig() {
 		super();
-		this.pairs = pairs;
+		pairs = new LinkedList<TFE[]>();
+		
+
 	}
 
+	public void addTetrahedra(int i) {
+		TFE[] pair = new TFE[2];
+
+		pair[0] = new TFE(i,2,1);
+		pair[1] = new TFE(i,3,1);
+		pairs.add(pair);
+		
+		pair = new TFE[2];
+		pair[0] = new TFE(i,1,2);
+		pair[1] = new TFE(i,3,2);
+		pairs.add(pair);
+		
+		pair = new TFE[2];
+		pair[0] = new TFE(i,1,3);
+		pair[1] = new TFE(i,2,3);
+		pairs.add(pair);
+		
+		pair = new TFE[2];
+		pair[0] = new TFE(i,0,4);
+		pair[1] = new TFE(i,3,4);
+		pairs.add(pair);
+		
+		pair = new TFE[2];
+		pair[0] = new TFE(i,0,5);
+		pair[1] = new TFE(i,2,5);
+		pairs.add(pair);
+		
+		pair = new TFE[2];
+		pair[0] = new TFE(i,0,6);
+		pair[1] = new TFE(i,1,6);
+		pairs.add(pair);
+		
+	}
+	
 	List<TFE[]> pairs;
 	
 	public int numPairs() {

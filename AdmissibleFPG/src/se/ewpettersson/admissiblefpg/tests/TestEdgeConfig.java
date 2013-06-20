@@ -1,7 +1,6 @@
 package se.ewpettersson.admissiblefpg.tests;
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 import org.junit.Test;
 
@@ -11,19 +10,14 @@ import se.ewpettersson.admissiblefpg.TFE;
 public class TestEdgeConfig {
 	@Test
 	public void doTestCombine(){
-		List<TFE[]> start = new ArrayList<TFE[]>();
 		TFE[] pair = new TFE[2];
-		pair[0] = new TFE(0,1,2);
-		pair[1] = new TFE(0,3,2);
-		start.add(pair);
-		pair = new TFE[2];
-		pair[0] = new TFE(0,2,1);
-		pair[1] = new TFE(0,3,1);
-		start.add(pair);
+
 		
-		EdgeConfig ec = new EdgeConfig(start);
+		EdgeConfig ec = new EdgeConfig();
 		
-		assert(ec.numPairs() == 2);
+		ec.addTetrahedra(0);
+		
+		assert(ec.numPairs() == 6);
 
 		pair = new TFE[2];
 		pair[0] = new TFE(0,1,2);
@@ -40,18 +34,15 @@ public class TestEdgeConfig {
 	
 	@Test
 	public void doTestDropPair() {
-		List<TFE[]> start = new ArrayList<TFE[]>();
 		TFE[] pair = new TFE[2];
-		pair[0] = new TFE(0,1,2);
-		pair[1] = new TFE(0,1,1);
-		start.add(pair);
-		EdgeConfig ec = new EdgeConfig(start);
-		assert(ec.numPairs() == 1);
+		EdgeConfig ec = new EdgeConfig();
+		ec.addTetrahedra(0);
+		assert(ec.numPairs() == 6);
 		
 		pair = new TFE[2];
 		pair[0] = new TFE(0,1,1);
 		pair[1] = new TFE(0,1,2);
 		ec.addGluing(pair);
-		assert(ec.numPairs() == 0);
+		assert(ec.numPairs() == 5);
 	}
 }
