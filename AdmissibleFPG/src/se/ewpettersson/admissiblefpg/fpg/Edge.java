@@ -1,10 +1,17 @@
 package se.ewpettersson.admissiblefpg.fpg;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Edge {
 	List<Vertex> endPoints;
 	boolean used;
+
+	public Edge(Vertex v, Vertex v2) {
+		endPoints = new ArrayList<Vertex>();
+		endPoints.add(v);
+		endPoints.add(v2);
+	}
 
 	public List<Vertex> getEndPoints() {
 		return endPoints;

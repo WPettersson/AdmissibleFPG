@@ -1,7 +1,19 @@
 package se.ewpettersson.admissiblefpg.fpg;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+
+import nl.uu.cs.treewidth.algorithm.GreedyFillIn;
+import nl.uu.cs.treewidth.algorithm.MaximumMinimumDegreePlusLeastC;
+import nl.uu.cs.treewidth.algorithm.PermutationToTreeDecomposition;
+import nl.uu.cs.treewidth.algorithm.QuickBB;
+import nl.uu.cs.treewidth.input.GraphInput.InputData;
+import nl.uu.cs.treewidth.ngraph.NGraph;
+import nl.uu.cs.treewidth.ngraph.NTDBag;
+import nl.uu.cs.treewidth.ngraph.NVertex;
+import nl.uu.cs.treewidth.ngraph.NVertexOrder;
 
 public class TreeDecomp {
 	List<Edge> edges;
@@ -23,10 +35,11 @@ public class TreeDecomp {
 		edges = new ArrayList<Edge>();
 		vertices = new ArrayList<Vertex>();
 		seen = new ArrayList<Integer>();
-		
+		getTreeDecomp();
+		createRootedTree();
 	}
 	
-	public void createRootedTree() {
+	private void createRootedTree() {
 		root = null;
 		for(Vertex v : vertices) {
 			if (v.degree() == 1) {
@@ -80,6 +93,69 @@ public class TreeDecomp {
 			}
 		}	
 	}
+	
+	
+	private void getTreeDecomp() {
+		FPGReader f = new FPGReader(fpg.getStringRep());
+		NGraph<InputData> g = f.get();
+		
+		MaximumMinimumDegreePlusLeastC<InputData> lbAlgo = new MaximumMinimumDegreePlusLeastC<InputData>();
+		lbAlgo.setInput( g );
+		lbAlgo.run();
+		int lowerbound = lbAlgo.getLowerBound();
+
+		GreedyFillIn<InputData> ubAlgo = new GreedyFillIn<InputData>();
+		ubAlgo.setInput( g );
+		ubAlgo.run();
+		int upperbound = ubAlgo.getUpperBound();
+		
+		NVertexOrder<InputData> permutation = null;
+
+		if( lowerbound == upperbound ) {
+			permutation = ubAlgo.getPermutation();
+		} else {
+			QuickBB<InputData> qbbAlgo = new QuickBB<InputData>();
+			qbbAlgo.setInput( g );
+			qbbAlgo.run();
+			permutation = qbbAlgo.getPermutation();
+			upperbound = qbbAlgo.getUpperBound();
+		}
+		
+		PermutationToTreeDecomposition<InputData> convertor = new PermutationToTreeDecomposition<InputData>( permutation );
+		convertor.setInput( g );
+		convertor.run();
+		NGraph<NTDBag<InputData>> decomposition = convertor.getDecomposition();
+		Iterator<NVertex<NTDBag<InputData>>> it = decomposition.getVertices();
+		HashMap<NVertex<NTDBag<InputData>>,Integer> map = new HashMap<NVertex<NTDBag<InputData>>,Integer>();
+		HashMap<Integer,Vertex> vMap = new HashMap<Integer,Vertex>();
+		int ind=0;
+		while( it.hasNext() ) {
+			NVertex<NTDBag<InputData>> bag = it.next();
+			map.put(bag, ind);
+
+			List<Integer> contents = new ArrayList<Integer>();
+			for( NVertex<InputData> v : bag.data.vertices ) {
+				contents.add(v.data.id);
+				
+			}
+			Iterator<NVertex<NTDBag<InputData>>> i = bag.getNeighbors();
+			Vertex v = new Vertex(contents, ind);
+			vMap.put(ind, v);
+			while( i.hasNext() ) {
+				NVertex<NTDBag<InputData>> n = i.next();
+				if (map.containsKey(n)) {
+					Edge e = new Edge( v, vMap.get(map.get(n)));
+					edges.add(e);
+				}
+			}
+			vertices.add(v);
+
+			ind++;
+		}
+
+	}
+	
+	
 	
 	public boolean isAdmissible() {
 		return (root.getConfigs().size() > 0);

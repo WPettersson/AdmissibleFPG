@@ -26,6 +26,11 @@ public class Vertex {
 		
 	TreeDecomp decomp;
 	
+	public Vertex(List<Integer> contents, Integer id) {
+		this.id = id;
+		this.contents = contents;
+	}
+	
 	public Map<Integer, Integer> getUsedFaces() {
 		return usedFaces;
 	}
