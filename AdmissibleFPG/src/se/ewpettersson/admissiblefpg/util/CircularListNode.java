@@ -38,4 +38,8 @@ public class CircularListNode {
 	public TVE getData() {
 		return data;
 	}
+	
+	public boolean equals(CircularListNode other) {
+		return data.equals(other.getData());
+	}
 }

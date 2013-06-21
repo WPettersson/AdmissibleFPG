@@ -1,6 +1,7 @@
 package se.ewpettersson.admissiblefpg.fpg;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,12 +24,17 @@ public class Vertex {
 	Map<Integer,Integer> usedFaces;
 	List<Integer> toAdd;
 	Integer id;
-		
+	Integer deg;
+	
 	TreeDecomp decomp;
 	
-	public Vertex(List<Integer> contents, Integer id) {
+	public Vertex(List<Integer> contents, Integer id, TreeDecomp d) {
 		this.id = id;
 		this.contents = contents;
+		deg = null;
+		decomp = d;
+		children = new ArrayList<Vertex>();
+		usedFaces = new HashMap<Integer,Integer>();
 	}
 	
 	public Map<Integer, Integer> getUsedFaces() {
@@ -43,9 +49,17 @@ public class Vertex {
 		this.contents = contents;
 	}
 
-	public int degree() {
-		// TODO
-		return 0;
+	public int degree(List<Edge> edges) {
+		if (deg == null) {
+			int count = 0;
+			for(Edge e: edges) {
+				if (e.touches(this)) {
+					count+=1;
+				}
+			}
+			deg = count;
+		}
+		return deg;
 	}
 	
 	public void setToAdd(List<Integer> l) {
@@ -90,9 +104,9 @@ public class Vertex {
 		Arc a = arcsAdded.get(0);
 		arcsAdded.remove(a);
 		int f1 = usedFaces.get(a.t1);
+		usedFaces.put(a.t1,f1+1);
 		int f2 = usedFaces.get(a.t2);
-		usedFaces.put(a.t1,f1-1);
-		usedFaces.put(a.t2,f2-1);
+		usedFaces.put(a.t2,f2+1);
 		for(int i=0;i<6;i++) {
 			Gluing g = new Gluing(i,a.t1,f1,a.t2,f2);
 			Config copy = new Config(c);
@@ -101,8 +115,8 @@ public class Vertex {
 			}
 		}
 		// Undo the changes we did.
-		usedFaces.put(a.t1,f1);
 		usedFaces.put(a.t2,f2);
+		usedFaces.put(a.t1,f1);
 		arcsAdded.add(0, a);
 	}
 	
@@ -151,5 +165,10 @@ public class Vertex {
 			}
 		}
 		return newList;
+	}
+	
+	public String toString() {
+		String s = "[Vertex: id="+id+", content="+contents+"]";
+		return s;
 	}
 }

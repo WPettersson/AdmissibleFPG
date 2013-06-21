@@ -126,8 +126,8 @@ public class VertexConfig {
 		boolean samePuncture = false;
 		CircularListNode temp = linkA.getNext();
 		boolean reverseOrient = (gluing[0].edge * gluing[1].edge < 0);
-		while ( temp != linkA ) {
-			if ( temp == linkB ) {
+		while ( !temp.equals(linkA) ) {
+			if ( temp.equals(linkB) ) {
 				samePuncture = true;
 				if ( reverseOrient ) {
 					return false;

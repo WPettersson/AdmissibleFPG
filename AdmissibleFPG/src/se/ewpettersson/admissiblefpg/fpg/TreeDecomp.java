@@ -10,6 +10,7 @@ import nl.uu.cs.treewidth.algorithm.MaximumMinimumDegreePlusLeastC;
 import nl.uu.cs.treewidth.algorithm.PermutationToTreeDecomposition;
 import nl.uu.cs.treewidth.algorithm.QuickBB;
 import nl.uu.cs.treewidth.input.GraphInput.InputData;
+import nl.uu.cs.treewidth.input.InputException;
 import nl.uu.cs.treewidth.ngraph.NGraph;
 import nl.uu.cs.treewidth.ngraph.NTDBag;
 import nl.uu.cs.treewidth.ngraph.NVertex;
@@ -31,10 +32,11 @@ public class TreeDecomp {
 		return fpg;
 	}
 
-	public TreeDecomp() {
+	public TreeDecomp(FacePairingGraph f) throws InputException {
 		edges = new ArrayList<Edge>();
 		vertices = new ArrayList<Vertex>();
 		seen = new ArrayList<Integer>();
+		fpg = f;
 		getTreeDecomp();
 		createRootedTree();
 	}
@@ -42,10 +44,13 @@ public class TreeDecomp {
 	private void createRootedTree() {
 		root = null;
 		for(Vertex v : vertices) {
-			if (v.degree() == 1) {
+			if (v.degree(edges) == 1) {
 				root = v;
 				break;
 			}
+		}
+		if(vertices.size() ==1) {
+			root = vertices.get(0);
 		}
 		if (root == null) {
 			return;
@@ -95,8 +100,8 @@ public class TreeDecomp {
 	}
 	
 	
-	private void getTreeDecomp() {
-		FPGReader f = new FPGReader(fpg.getStringRep());
+	private void getTreeDecomp() throws InputException {
+		FPGReader f = new FPGReader(fpg);
 		NGraph<InputData> g = f.get();
 		
 		MaximumMinimumDegreePlusLeastC<InputData> lbAlgo = new MaximumMinimumDegreePlusLeastC<InputData>();
@@ -139,7 +144,7 @@ public class TreeDecomp {
 				
 			}
 			Iterator<NVertex<NTDBag<InputData>>> i = bag.getNeighbors();
-			Vertex v = new Vertex(contents, ind);
+			Vertex v = new Vertex(contents, ind, this);
 			vMap.put(ind, v);
 			while( i.hasNext() ) {
 				NVertex<NTDBag<InputData>> n = i.next();

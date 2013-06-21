@@ -3,6 +3,7 @@
 	<name>AdmissibleFPG</name>
 	<comment></comment>
 	<projects>
+		<project>libtw</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

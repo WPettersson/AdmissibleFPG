@@ -1,7 +1,6 @@
 package se.ewpettersson.admissiblefpg.fpg;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import nl.uu.cs.treewidth.input.GraphInput;
@@ -14,62 +13,32 @@ import nl.uu.cs.treewidth.ngraph.NVertex;
 public class FPGReader implements GraphInput {
 
 	
-	String s;
+	FacePairingGraph f;
 	
-	public FPGReader(String s){ 
-		this.s=s;
+	public FPGReader(FacePairingGraph f){ 
+		this.f=f;
 	}
 	@Override
 	public NGraph<InputData> get() throws InputException {
 		NGraph<InputData> g = new ListGraph<InputData>();
 		
 		List<NVertex<InputData>> vertices = new ArrayList<NVertex<InputData>>();
-		List<String> spl = new LinkedList<String>();
-		for(String n: s.split(" ")) {
-			spl.add(n);
+		for(int i=0;i<f.numVerts();i++) {
+			NVertex<InputData> v = new ListVertex<InputData>();
+			v.data = new InputData();
+			v.data.id = i;
+			v.data.name = String.valueOf(i);
+			vertices.add(v);
+			g.addVertex(v);			
 		}
-		int tet=0;
-		int face=0;
-		
-		while(!spl.isEmpty()) {
-			if(face == 0) {
-				NVertex<InputData> v = new ListVertex<InputData>();
-				vertices.add(v);
-				g.addVertex(v);
-			}
-			int adjTet = Integer.parseInt(spl.remove(0));
-			
-			int adjFace = Integer.parseInt(spl.remove(0));
-			
-			
-			// Edges show up twice in the string representation.
-			// Only add them once, when we are at the second 
-			// such showing.  That means either we are at a "higher"
-			// tet, or same tet but "higher" face.
-			if (tet > adjTet) {
-				NVertex<InputData> v1 = vertices.get(tet);
-				NVertex<InputData> v2 = vertices.get(adjTet);
+		for(Arc a: f.getArcs()) {
+			if (!a.isLoop()) {
+				NVertex<InputData> v1 = vertices.get(a.t1);
+				NVertex<InputData> v2 = vertices.get(a.t2);
 				g.addEdge(v1,v2);
-			} else if ( tet == adjTet ) {
-				if (face > adjFace) {
-					NVertex<InputData> v1 = vertices.get(tet);
-					NVertex<InputData> v2 = vertices.get(adjTet);
-					g.addEdge(v1,v2);
-				}
 			}
-			face+=1;
-			if (face == 4) {
-				tet+=1;
-				face=0;
-			}
-			
-		}
-		
-		NVertex<InputData> v1 = new ListVertex<InputData>();
-		NVertex<InputData> v2 = new ListVertex<InputData>();
-		g.addEdge(v1, v2);
-		
-		return null;
+		}		
+		return g;
 	}
 
 }
