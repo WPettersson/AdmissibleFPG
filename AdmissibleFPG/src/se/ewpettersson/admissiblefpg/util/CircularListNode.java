@@ -32,7 +32,18 @@ public class CircularListNode {
 	}
 	
 	public String toString() {
-		return data.toString();
+		String s="[";
+		s+=data.toString()+", ";
+		CircularListNode temp = getNext();
+		CircularListNode now = this;
+		int i=0;
+		while(now != temp && i < 10) {
+			s+=temp.getData().toString()+", ";
+			temp=temp.getNext();
+			i++;
+		}
+		s=s.substring(0, s.length()-2) + "]";
+		return s;
 	}
 	
 	public TVE getData() {

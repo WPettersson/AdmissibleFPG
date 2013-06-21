@@ -1,6 +1,5 @@
 package se.ewpettersson.admissiblefpg;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -13,10 +12,10 @@ import se.ewpettersson.admissiblefpg.util.CircularListNode;
 public class VertexConfig {
 	
 	// Maps a tet+vertex to a list of other pairs which have been squeezed together.
-	// Note that the entries in the list are formed using the "combine" function.
-	Map<Integer, List<Integer>> equiv; 
+	// Note that the entries in the set are formed using the "combine" function.
+	Map<Integer, Set<Integer>> equiv; 
 	
-	public Map<Integer, List<Integer>> getEquiv() {
+	public Map<Integer, Set<Integer>> getEquiv() {
 		return equiv;
 	}
 
@@ -38,9 +37,9 @@ public class VertexConfig {
 		Map<Integer, Map<Integer, CircularListNode>> tetLinks = new HashMap<Integer, Map<Integer, CircularListNode>>();
 		
 		Map<Integer, CircularListNode> vertLink;
-		List<Integer> vert;
+		Set<Integer> vert;
 		for(int i=0; i<4; i++) {
-			vert = new ArrayList<Integer>();
+			vert = new HashSet<Integer>();
 			vert.add(combine( id, i));
 			equiv.put(combine(id, i),vert);
 
@@ -64,32 +63,32 @@ public class VertexConfig {
 		CircularListNode a = new CircularListNode(tve);
 		CircularListNode b = new CircularListNode(tve2);
 		CircularListNode c = new CircularListNode(tve3);
-		links.get(tve.tet).get(tve.vertex).put(Math.abs(tve.edge),a);
-		links.get(tve2.tet).get(tve2.vertex).put(Math.abs(tve2.edge),b);
-		links.get(tve3.tet).get(tve3.vertex).put(Math.abs(tve3.edge),c);
 		a.setNext(b);
 		b.setNext(c);
 		c.setNext(a);
 		a.setPrev(c);
 		c.setPrev(b);
 		b.setPrev(a);
+		links.get(tve.tet).get(tve.vertex).put(Math.abs(tve.edge),a);
+		links.get(tve2.tet).get(tve2.vertex).put(Math.abs(tve2.edge),b);
+		links.get(tve3.tet).get(tve3.vertex).put(Math.abs(tve3.edge),c);
 	}
 
 	public VertexConfig() {
-		equiv = new HashMap<Integer,List<Integer>>();
+		equiv = new HashMap<Integer,Set<Integer>>();
 		links = new HashMap<Integer,Map<Integer,Map<Integer,CircularListNode>>>();
 		onBoundary = new HashMap<Integer, Integer>();
 	}
 	
 	public VertexConfig(VertexConfig vc) {
-		equiv = new HashMap<Integer,List<Integer>>();
+		equiv = new HashMap<Integer,Set<Integer>>();
 		links = new HashMap<Integer,Map<Integer,Map<Integer,CircularListNode>>>();
 		onBoundary = new HashMap<Integer, Integer>();
 		
 		// Deep cloning the annoying way.
 		for( Integer key: vc.getEquiv().keySet()) {
-			List<Integer> cloneList = vc.getEquiv().get(key);
-			List<Integer> newList = new ArrayList<Integer>();
+			Set<Integer> cloneList = vc.getEquiv().get(key);
+			Set<Integer> newList = new HashSet<Integer>();
 			for(Integer elt: cloneList) {
 				Integer newInt = new Integer(elt);
 				newList.add(newInt);
@@ -134,6 +133,8 @@ public class VertexConfig {
 				}
 			}
 			temp = temp.getNext();
+			System.out.println(linkA);
+			System.out.println(linkB);
 		}
 		
 		if (! samePuncture) {
@@ -174,38 +175,39 @@ public class VertexConfig {
 		links.get(gluing[0].tet).get(gluing[0].vertex).remove(gluing[0].edge);
 		links.get(gluing[1].tet).get(gluing[1].vertex).remove(gluing[1].edge);
 		
-		List<Integer> equiv_list = equiv.get(combine(gluing[0].tet,gluing[0].vertex));
-		Integer combined = combine( gluing[1].tet,gluing[1].vertex);
-		if (!equiv_list.contains(combined)) {
-			equiv_list.add(combined);
-		}
-		equiv_list = equiv.get(combine(gluing[1].tet,gluing[1].vertex));
-		combined = combine( gluing[0].tet,gluing[0].vertex);
-		if (!equiv_list.contains(combined)) {
-			equiv_list.add(combined);
-		}
+		
+		Integer combined0 = combine( gluing[0].tet,gluing[0].vertex);
+		Integer combined1 = combine( gluing[1].tet,gluing[1].vertex);
+		equiv.get(combined0).addAll(equiv.get(combined1));
+		equiv.get(combined1).addAll(equiv.get(combined0));
+	
 		
 		// Note that each of these tetrahedra/vertex pairs have one less boundary edge.
 		onBoundary.put(combine(gluing[0].tet,gluing[0].vertex),onBoundary.get(gluing[0].tet)-1);
 		onBoundary.put(combine(gluing[1].tet,gluing[1].vertex),onBoundary.get(gluing[1].tet)-1);
 		
 		// Remove them from all equivalence classes if they are no longer on the boundary	
-		combined = combine(gluing[0].tet,gluing[0].vertex);
-		if (onBoundary.get(combined) == 0) {
-			for( Integer i: equiv.get(combined)  ) {
-				List<Integer> otherList = equiv.get(i);
-				otherList.remove(i);
+
+		if (onBoundary.get(combined0) == 0) {
+			Set<Integer> s = new HashSet<Integer>(equiv.get(combined0));
+			for( Integer i: s ) {
+				Set<Integer> otherList = equiv.get(i);
+				if (otherList != null) {
+					otherList.remove(i);
+				}
 			}
-			equiv.remove(combined);
+			equiv.remove(combined0);
 		}
 		
-		combined = combine(gluing[1].tet,gluing[1].vertex);
-		if (onBoundary.get(combined) == 0) {
-			for( Integer i: equiv.get(combined)  ) {
-				List<Integer> otherList = equiv.get(i);
-				otherList.remove(i);
+		if (onBoundary.get(combined1) == 0) {
+			Set<Integer> s = new HashSet<Integer>(equiv.get(combined1));
+			for( Integer i: s ) {
+				Set<Integer> otherList = equiv.get(i);
+				if(otherList != null) {
+					otherList.remove(i);
+				}
 			}
-			equiv.remove(combined);
+			equiv.remove(combined1);
 		}
 			
 		return true;
