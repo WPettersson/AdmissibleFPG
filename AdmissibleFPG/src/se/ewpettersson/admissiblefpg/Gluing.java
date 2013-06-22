@@ -116,5 +116,13 @@ public class Gluing {
 	}
 	
 
+	public String toString() {
+		String s = "[g "+t1+".";
+		s+=String.valueOf(FACE_VERTICES[f1][0]) + String.valueOf(FACE_VERTICES[f1][1]) + String.valueOf(FACE_VERTICES[f1][2])+ " to "+t2+".";
+		s+=String.valueOf(FACE_VERTICES[f2][VERT_SYM_MAP[sym][0]])+String.valueOf(FACE_VERTICES[f2][VERT_SYM_MAP[sym][1]])+String.valueOf(FACE_VERTICES[f2][VERT_SYM_MAP[sym][2]]);
+		s+="]";
+		//+f1+ " - " + t2+"."+f2+"]";
+		return s;
+	}
 }
 

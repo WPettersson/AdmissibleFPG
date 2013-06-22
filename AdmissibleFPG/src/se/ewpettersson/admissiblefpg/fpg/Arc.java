@@ -18,4 +18,7 @@ public class Arc {
 		return s;
 	}
 	
+	public boolean parallel(Arc a) {
+		return (((t1 == a.t1)&&(t2 == a.t2))||((t1 == a.t2)&&(t2 == a.t1))) ;
+	}
 }

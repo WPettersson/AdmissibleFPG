@@ -31,11 +31,19 @@ public class FPGReader implements GraphInput {
 			vertices.add(v);
 			g.addVertex(v);			
 		}
+		List<Arc> done = new ArrayList<Arc>();
 		for(Arc a: f.getArcs()) {
-			if (!a.isLoop()) {
+			boolean parallel = false;
+			for(Arc d: done) {
+				if (d.parallel(a)) {
+					parallel = true;
+				}
+			}
+			if (!parallel && !a.isLoop()) {
 				NVertex<InputData> v1 = vertices.get(a.t1);
 				NVertex<InputData> v2 = vertices.get(a.t2);
 				g.addEdge(v1,v2);
+				done.add(a);
 			}
 		}		
 		return g;

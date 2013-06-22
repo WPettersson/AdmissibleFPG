@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 import nl.uu.cs.treewidth.input.InputException;
+import nl.uu.cs.treewidth.timing.Stopwatch;
 
 import se.ewpettersson.admissiblefpg.fpg.FacePairingGraph;
 import se.ewpettersson.admissiblefpg.fpg.TreeDecomp;
@@ -25,15 +26,23 @@ public class Main {
 		}
 		while(stdin.hasNextLine()) {
 			String s = stdin.nextLine();
+			Stopwatch timer = new Stopwatch();
+			 
+			timer.start();
 			FacePairingGraph f = new FacePairingGraph(s);
 			try {
 				TreeDecomp t = new TreeDecomp(f);
 				if (t.isAdmissible()) {
 					System.out.println(s);
+				} else {
+					System.err.println("No 3-manifolds from "+s);
 				}
+				
 			} catch (InputException e) {
 				System.err.println("Bad face pairing graph given");
 			}
+			timer.stop();
+			System.out.println("Time: "+timer.getTime());
 
 		}
 	}

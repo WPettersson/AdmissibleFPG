@@ -13,8 +13,8 @@ public class CircularListNode {
 	}
 	
 	public CircularListNode(CircularListNode c) {
-		next = c.getNext();
-		prev = c.getPrev();
+		next = null;
+		prev = null;
 		data = new TVE(c.getData());
 	}
 	
@@ -31,18 +31,33 @@ public class CircularListNode {
 		this.prev = prev;
 	}
 	
+	public int size() {
+		int i=0;
+		CircularListNode temp = getNext();
+		CircularListNode now = this;
+		while((!now.equals(temp)) && temp != null && i < 10) {
+			temp=temp.getNext();
+			i++;
+		}
+		return i;
+	}
+	
 	public String toString() {
 		String s="[";
 		s+=data.toString()+", ";
 		CircularListNode temp = getNext();
 		CircularListNode now = this;
 		int i=0;
-		while(now != temp && i < 10) {
+		while(temp != null && (!now.equals(temp)) && i < 10) {
 			s+=temp.getData().toString()+", ";
 			temp=temp.getNext();
 			i++;
 		}
-		s=s.substring(0, s.length()-2) + "]";
+		s=s.substring(0, s.length()-2); 
+		if (temp == null) {
+			s+="*"; // Denote a not-circular node.
+		}
+		s+="]";
 		return s;
 	}
 	

@@ -38,6 +38,7 @@ public class Vertex {
 	}
 	
 	public Map<Integer, Integer> getUsedFaces() {
+		
 		return usedFaces;
 	}
 
@@ -82,7 +83,7 @@ public class Vertex {
 		childrenConfigs = new ArrayList<List<Config>>();
 		for( Vertex child: children) {
 			childrenConfigs.add(child.getConfigs());
-			usedFaces.putAll(child.getUsedFaces());
+			usedFaces.putAll(child.getFinalUsedFaces());
 		}
 		
 		List<Config> configsToTry = toTry();
@@ -95,11 +96,21 @@ public class Vertex {
 		}
 	}
 	
+	private Map<Integer,Integer> getFinalUsedFaces() {
+		Map<Integer,Integer> used = new HashMap<Integer,Integer>(usedFaces);
+		for( Arc a: arcsAdded) {
+			used.put(a.t1, used.get(a.t1)+1);
+			used.put(a.t2, used.get(a.t2)+1);
+		}
+		return used;
+	}
+
 	private void addArc(Config c) {
 		if (arcsAdded.size() == 0) {
 			if (!possibleConfigs.contains(c)) {
 				possibleConfigs.add(c);
 			}
+			return;
 		}
 		Arc a = arcsAdded.get(0);
 		arcsAdded.remove(a);
@@ -111,7 +122,11 @@ public class Vertex {
 			Gluing g = new Gluing(i,a.t1,f1,a.t2,f2);
 			Config copy = new Config(c);
 			if (copy.addGluing(g) ) {
+				String desc = "Glued "+g;
+				copy.addDescription(desc);
+				//System.out.println("Glued "+g);
 				addArc(copy);
+				//System.out.println("Unglued "+g);
 			}
 		}
 		// Undo the changes we did.

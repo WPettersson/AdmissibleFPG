@@ -86,12 +86,19 @@ public class VertexConfig {
 		onBoundary = new HashMap<Integer, Integer>();
 		
 		// Deep cloning the annoying way.
+		Map<Set<Integer>,Set<Integer>> clnSet = new HashMap<Set<Integer>,Set<Integer>>();
 		for( Integer key: vc.getEquiv().keySet()) {
 			Set<Integer> cloneList = vc.getEquiv().get(key);
-			Set<Integer> newList = new HashSet<Integer>();
-			for(Integer elt: cloneList) {
-				Integer newInt = new Integer(elt);
-				newList.add(newInt);
+			Set<Integer> newList;
+			if(clnSet.containsKey(cloneList)) {
+				newList = clnSet.get(cloneList);
+			} else {
+				newList = new HashSet<Integer>();
+				for(Integer elt: cloneList) {
+					Integer newInt = new Integer(elt);
+					newList.add(newInt);
+				}
+				clnSet.put(cloneList, newList);
 			}
 			equiv.put(key, newList);
 		}
@@ -101,6 +108,7 @@ public class VertexConfig {
 			onBoundary.put(key, onBdry);
 		}
 		
+		Map<CircularListNode,CircularListNode> clnMap = new HashMap<CircularListNode,CircularListNode>();
 		for( Integer key: vc.getLinks().keySet() ) {
 			Map<Integer,Map<Integer,CircularListNode>> cloneMap = vc.getLinks().get(key);
 			Map<Integer,Map<Integer,CircularListNode>> newMap = new HashMap<Integer,Map<Integer,CircularListNode>>();
@@ -109,11 +117,17 @@ public class VertexConfig {
 				Map<Integer,CircularListNode> newMap2 = new HashMap<Integer,CircularListNode>();
 				for( Integer key3: cloneMap2.keySet()) {
 					CircularListNode node = new CircularListNode(cloneMap2.get(key3));
+					clnMap.put(cloneMap2.get(key3),	node);
 					newMap2.put(key3, node);
 				}
 				newMap.put(key2, newMap2);
 			}
 			links.put(key, newMap);
+		}
+		for(CircularListNode oldNode: clnMap.keySet()) {
+				CircularListNode newNode = clnMap.get(oldNode);
+				newNode.setNext(clnMap.get(oldNode.getNext()));
+				newNode.setPrev(clnMap.get(oldNode.getPrev()));
 		}
 	}
 
@@ -133,8 +147,6 @@ public class VertexConfig {
 				}
 			}
 			temp = temp.getNext();
-			System.out.println(linkA);
-			System.out.println(linkB);
 		}
 		
 		if (! samePuncture) {
@@ -145,46 +157,72 @@ public class VertexConfig {
 			}
 		}
 		
+
 		if (reverseOrient) {
-			temp = linkB.getNext();
-			// Reverse all "edges" in linkB
+			temp = linkB.getNext(); // Iterating "forward" along the old orientation.
+			// Reverse all in linkB
 			while (temp != linkB) {
 				temp.data.edge = -temp.data.edge;
-				temp = temp.getNext();
+				CircularListNode temp2 = temp.getNext();
+				temp.setNext(temp.getPrev());
+				temp.setPrev(temp2);
+				
+				temp = temp.getPrev(); // We've swapped prev+next, so this is the right direction.
+				
 			}
-			// No need to reverse linkB, linkA and linkB will disappear now.
+			CircularListNode temp2 = linkB.getNext();
+			linkB.setNext(linkB.getPrev());
+			linkB.setPrev(temp2);
+			linkB.data.edge = -temp.data.edge;
+			
 		}
+	
 		CircularListNode prevA = linkA.getPrev();
 		CircularListNode prevB = linkB.getPrev();
 		CircularListNode nextA = linkA.getNext();
 		CircularListNode nextB = linkB.getNext();
+
 		
-		if (prevA != linkA && prevA != linkB) {
+		
+		// Check to see whether either linkA or linkB represents a puncture consisting of one edge only.
+		boolean linkASolo = (nextA == linkA);
+		boolean linkBSolo = (nextB == linkB);
+		
+		if (linkASolo && linkBSolo) {
+			// Do nothing if both links represent single edge punctures.
+		} else if (linkASolo) {
+			// Just skip the edge linkB if linkA is a single edge puncture.
+			prevB.setNext(nextB);
+			nextB.setPrev(prevB);
+		} else if (linkBSolo) {
+			// Likewise for linkA
+			prevA.setNext(nextA);
+			nextA.setPrev(prevA);
+		} else {
+			// Neither are single edge punctures. Join the two punctures into one puncture.
 			prevA.setNext(nextB);
-		}
-		if (nextB != linkA && nextB != linkB) {
 			nextB.setPrev(prevA);
-		}
-		if (prevB != linkA && prevB != linkB) {
 			prevB.setNext(nextA);
-		}
-		if (nextA != linkA && nextA != linkB) {
 			nextA.setPrev(prevB);
 		}
 		
-		links.get(gluing[0].tet).get(gluing[0].vertex).remove(gluing[0].edge);
-		links.get(gluing[1].tet).get(gluing[1].vertex).remove(gluing[1].edge);
+		links.get(gluing[0].tet).get(gluing[0].vertex).remove(Math.abs(gluing[0].edge));
+		links.get(gluing[1].tet).get(gluing[1].vertex).remove(Math.abs(gluing[1].edge));
 		
 		
 		Integer combined0 = combine( gluing[0].tet,gluing[0].vertex);
 		Integer combined1 = combine( gluing[1].tet,gluing[1].vertex);
+
 		equiv.get(combined0).addAll(equiv.get(combined1));
-		equiv.get(combined1).addAll(equiv.get(combined0));
+		for(Integer i:equiv.get(combined1)) {
+			equiv.put(i, equiv.get(combined0));
+		}
+		
 	
 		
 		// Note that each of these tetrahedra/vertex pairs have one less boundary edge.
-		onBoundary.put(combine(gluing[0].tet,gluing[0].vertex),onBoundary.get(gluing[0].tet)-1);
-		onBoundary.put(combine(gluing[1].tet,gluing[1].vertex),onBoundary.get(gluing[1].tet)-1);
+		onBoundary.put(combined0,onBoundary.get(combined0)-1);
+		onBoundary.put(combined1,onBoundary.get(combined1)-1);
 		
 		// Remove them from all equivalence classes if they are no longer on the boundary	
 
@@ -193,18 +231,20 @@ public class VertexConfig {
 			for( Integer i: s ) {
 				Set<Integer> otherList = equiv.get(i);
 				if (otherList != null) {
-					otherList.remove(i);
+					otherList.remove(combined0);
 				}
 			}
 			equiv.remove(combined0);
 		}
 		
-		if (onBoundary.get(combined1) == 0) {
+		
+		// Don't try to remove a second time if combined1==combined0
+		if ((combined1 != combined0) && (onBoundary.get(combined1) == 0)) {
 			Set<Integer> s = new HashSet<Integer>(equiv.get(combined1));
 			for( Integer i: s ) {
 				Set<Integer> otherList = equiv.get(i);
 				if(otherList != null) {
-					otherList.remove(i);
+					otherList.remove(combined1);
 				}
 			}
 			equiv.remove(combined1);
@@ -228,10 +268,12 @@ public class VertexConfig {
 						s+="[";
 						CircularListNode t = n.getNext();
 						s+= n.toString() + ", ";
-						while ( t != n) {
+						int i=0;
+						while (t!= null && t != n && i<10) {
 							s+= t.toString() + ", ";
 							done.add(t);
 							t = t.getNext();
+							i++;
 						}
 						s=s.substring(0, s.length()-2)+ "], ";
 						done.add(t);
