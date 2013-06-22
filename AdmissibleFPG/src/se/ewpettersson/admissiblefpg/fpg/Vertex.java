@@ -25,12 +25,13 @@ public class Vertex {
 	List<Integer> toAdd;
 	Integer id;
 	Integer deg;
-	
+	boolean isRoot;
 	TreeDecomp decomp;
 	
 	public Vertex(List<Integer> contents, Integer id, TreeDecomp d) {
 		this.id = id;
 		this.contents = contents;
+		this.isRoot = false;
 		deg = null;
 		decomp = d;
 		children = new ArrayList<Vertex>();
@@ -79,6 +80,10 @@ public class Vertex {
 		return possibleConfigs;
 	}
 	
+	public void setRoot() {
+		this.isRoot = true;
+	}
+	
 	private void findConfigs() {
 		childrenConfigs = new ArrayList<List<Config>>();
 		for( Vertex child: children) {
@@ -106,6 +111,9 @@ public class Vertex {
 	}
 
 	private void addArc(Config c) {
+		if (isRoot && possibleConfigs.size() > 0) {
+			return;
+		}
 		if (arcsAdded.size() == 0) {
 			if (!possibleConfigs.contains(c)) {
 				possibleConfigs.add(c);

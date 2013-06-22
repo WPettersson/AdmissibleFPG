@@ -42,16 +42,18 @@ public class TreeDecomp {
 	}
 	
 	private void createRootedTree() {
-		root = null;
-		for(Vertex v : vertices) {
-			if (v.degree(edges) == 1) {
-				root = v;
-				break;
-			}
-		}
-		if(vertices.size() ==1) {
-			root = vertices.get(0);
-		}
+//		root = null;
+//		for(Vertex v : vertices) {
+//			if (v.degree(edges) == 1) {
+//				root = v;
+//				break;
+//			}
+//		}
+//		if(vertices.size() ==1) {
+//			root = vertices.get(0);
+//		}
+		root = vertices.get(0);
+		root.setRoot();
 		if (root == null) {
 			return;
 		}
