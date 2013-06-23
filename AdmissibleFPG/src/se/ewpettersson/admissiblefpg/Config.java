@@ -31,6 +31,7 @@ public class Config {
 	}
 	
 	public void mergeWith(Config d) {
+		description.addAll(d.getDescriptions());
 		vc.mergeWith(d.getVC());
 		ec.mergeWith(d.getEC());
 	}
@@ -70,5 +71,9 @@ public class Config {
 	public void addDescription(String desc) {
 		description.add(desc);
 		
+	}
+	
+	public String toString() {
+		return description.toString();
 	}
 }
