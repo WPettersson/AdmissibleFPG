@@ -9,7 +9,6 @@ public class Arc {
 	public int t1,t2;
 
 	public boolean isLoop() {
-		// TODO Auto-generated method stub
 		return t1==t2;
 	}
 	

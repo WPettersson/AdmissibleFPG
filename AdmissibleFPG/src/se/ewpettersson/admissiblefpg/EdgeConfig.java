@@ -70,20 +70,26 @@ public class EdgeConfig {
 			int o = p[0].orientTo(gluing[0]);
 			if (o != 0) {
 				int o2 = p[1].orientTo(gluing[1]);
-				if (o2 == 1) {
+				if (o2 == o) {
 					// MINIMAL
 					// Can remove this pair as it's being closed up.
 					pairs.remove(p);
 					return true;
 				}
-				if (o2 == 1) {
+				if (o2 == -o) {
 					// Gluing edge to itself in reverse
 					return false;
 				}
 				if (pairOne == null) {
 					pairOne = p[1];
+					if (o==-1) {
+						pairOne.edge=-pairOne.edge;
+					}
 					removePair = p;
 				} else {
+					if (o==-1) {
+						pairOne.edge=-pairOne.edge;
+					}
 					p[0] = pairOne;
 					pairs.remove(removePair);
 					return true;
@@ -92,40 +98,60 @@ public class EdgeConfig {
 			o = p[1].orientTo(gluing[0]);
 			if (o != 0) {
 				int o2 = p[0].orientTo(gluing[1]);
-				if (o2 == 1) {
+				if (o2 == o) {
 					// MINIMAL
 					// Can remove this pair as it's being closed up.
 					pairs.remove(p);
 					return true;
 				}
-				if (o2 == 1) {
+				if (o2 == -o) {
 					// Gluing edge to itself in reverse
 					return false;
 				}
 				if (pairOne == null) {
 					pairOne = p[0];
+					if (o==-1) {
+						pairOne.edge=-pairOne.edge;
+					}
 					removePair = p;
 				} else {
+					if (o==-1) {
+						pairOne.edge=-pairOne.edge;
+					}
 					p[1] = pairOne;
 					pairs.remove(removePair);
 					return true;
 				}
 			}
-			if (p[0].orientTo(gluing[1]) != 0) {
+			o = p[0].orientTo(gluing[1]);
+			if (o != 0) {
 				if (pairOne == null) {
 					pairOne = p[1];
+					if (o==-1) {
+						pairOne.edge=-pairOne.edge;
+					}
 					removePair = p;
 				} else {
+					if (o==-1) {
+						pairOne.edge=-pairOne.edge;
+					}
 					p[0] = pairOne;
 					pairs.remove(removePair);
 					return true;
 				}
 			}
-			if (p[1].orientTo(gluing[1]) != 0) {
+			o = p[1].orientTo(gluing[1]);
+			if (o != 0) {
 				if (pairOne == null) {
 					pairOne = p[0];
+					if (o==-1) {
+						pairOne.edge=-pairOne.edge;
+					}
 					removePair = p;
 				} else {
+					if (o==-1) {
+						pairOne.edge=-pairOne.edge;
+					}
 					p[1] = pairOne;
 					pairs.remove(removePair);
 					return true;
@@ -142,7 +168,10 @@ public class EdgeConfig {
 		for(TFE[] p : pairs) {
 			s+= "["+ p[0].toString() + " to " + p[1].toString() + "], ";
 		}
-		return s.substring(0, s.length() -2) + "]";
+		if (s.endsWith(", ")) {
+			s = s.substring(0,s.length()-2);
+		}
+		return s + "]";
 	}
 
 	public boolean pairs(TFE p1, TFE p2) {
@@ -167,4 +196,5 @@ public class EdgeConfig {
 		pairs.addAll(ec.getPairs());
 		
 	}
+
 }

@@ -135,14 +135,16 @@ public class VertexConfig {
 		CircularListNode linkA = links.get(gluing[0].tet).get(gluing[0].vertex).get(Math.abs(gluing[0].edge));
 		CircularListNode linkB = links.get(gluing[1].tet).get(gluing[1].vertex).get(Math.abs(gluing[1].edge));
 		
+		//System.out.println("Link A:" + linkA);
+		//System.out.println("Link B:" + linkB);
 		// Check to see if the two link-arcs are on the same puncture.
 		boolean samePuncture = false;
 		CircularListNode temp = linkA.getNext();
-		boolean reverseOrient = (gluing[0].edge * gluing[1].edge < 0);
+		boolean reverseOrient = (gluing[0].edge * gluing[1].edge < 0) != (linkA.data.edge*linkB.data.edge > 0);
 		while ( !temp.equals(linkA) ) {
 			if ( temp.equals(linkB) ) {
 				samePuncture = true;
-				if ( reverseOrient ) {
+				if (reverseOrient) {
 					return false;
 				}
 			}
@@ -174,7 +176,6 @@ public class VertexConfig {
 			linkB.setNext(linkB.getPrev());
 			linkB.setPrev(temp2);
 			linkB.data.edge = -temp.data.edge;
-			
 		}
 	
 		CircularListNode prevA = linkA.getPrev();
@@ -332,4 +333,6 @@ public class VertexConfig {
 		onBoundary.putAll(vc.getOnBoundary());
 		
 	}
+
+	
 }

@@ -19,7 +19,7 @@ public class Main {
 			try {
 				stdin = new Scanner(new File(args[0]));
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 			}
 		} else {
@@ -31,21 +31,29 @@ public class Main {
 			 
 			timer.start();
 			FacePairingGraph f = new FacePairingGraph(s);
+			boolean adm = false;
+			boolean ok = true;
 			try {
 				TreeDecomp t = new TreeDecomp(f);
-				if (t.isAdmissible()) {
-					System.out.println(s);
-				} else {
-					System.err.println("No 3-manifolds from "+s);
+				adm = t.isAdmissible();
+				if(!adm) {
+					System.err.println("Bad");
 				}
 				
 			} catch (InputException e) {
 				System.err.println("Bad face pairing graph given");
+				ok = false;
 			}
 			timer.stop();
 			totalTime+=timer.getTime();
+			if(ok) {
+				System.out.println(s+","+adm+","+timer.getTime());
+			}
+
 			count+=1;
+			System.err.print(".");
 		}
-		System.out.println(""+count+" graphs took "+totalTime+"ms total, "+(totalTime/count)+"ms per graph on average");
+		System.err.println();
+		System.err.println(""+count+" graphs took "+totalTime+"ms total, "+(totalTime/count)+"ms per graph on average");
 	}
 }

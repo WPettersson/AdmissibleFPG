@@ -1,11 +1,12 @@
 package se.ewpettersson.admissiblefpg;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
 
-public class Config {
+public class Config implements Iterable<Config>{
 	VertexConfig vc;
 	EdgeConfig ec;
 	List<String> description;
@@ -35,10 +36,10 @@ public class Config {
 		vc.mergeWith(d.getVC());
 		ec.mergeWith(d.getEC());
 	}
-	private VertexConfig getVC() {
+	public VertexConfig getVC() {
 		return vc;
 	}
-	private EdgeConfig getEC() {
+	public EdgeConfig getEC() {
 		return ec;
 	}
 	public void addTetrahedra(Integer tetToAdd) {
@@ -50,13 +51,20 @@ public class Config {
 	public boolean addGluing(Gluing g) {
 		TFE[][] tfe = g.getTFEPairs();
 		for(TFE[] pair: tfe) {
+			//System.out.println("Before: "+ec);
+			//System.out.println("Gluing TFE "+ pair[0]+ " to " + pair[1]);
 			if (!ec.addGluing(pair)) {
+			//	System.out.println("Failed: "+ec);
 				return false;
 			}
+
+			//System.out.println("After: "+ec);
 		}
 		TVE[][] tve = g.getTVEPairs();
 		for(TVE[] pair: tve) {
 			if (!vc.addGluing(pair)) {
+				//System.out.println("Gluing TVE "+ pair[0] + " to " + pair[1]);
+				//System.out.println("Failed: "+vc);
 				return false;
 			}
 		}
@@ -76,4 +84,11 @@ public class Config {
 	public String toString() {
 		return description.toString();
 	}
+
+	@Override
+	public Iterator<Config> iterator() {
+		return null;
+	}
+
+
 }

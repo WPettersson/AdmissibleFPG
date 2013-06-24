@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import se.ewpettersson.admissiblefpg.Config;
+import se.ewpettersson.admissiblefpg.Gluing;
+
 import nl.uu.cs.treewidth.algorithm.GreedyFillIn;
 import nl.uu.cs.treewidth.algorithm.MaximumMinimumDegreePlusLeastC;
 import nl.uu.cs.treewidth.algorithm.PermutationToTreeDecomposition;
@@ -26,6 +29,8 @@ public class TreeDecomp {
 	int nTets;
 	
 	FacePairingGraph fpg;
+
+	private Config oneConfig;
 
 	
 	public FacePairingGraph getFpg() {
@@ -165,11 +170,31 @@ public class TreeDecomp {
 	
 	
 	public boolean isAdmissible() {
-		return (root.getConfigs().size() > 0);
+		return root.hasConfig();
+		//return (root.getConfigs().size() > 0);
 	}
 	
 	public List<Edge> getEdges() {
 		return edges;
+	}
+
+	public void makeConfig(int numTet) {
+		this.oneConfig = new Config();
+		for(int i=0;i<numTet;i++)
+			oneConfig.addTetrahedra(i);
+	}
+	
+	public void glue(int t1, int f1, int t2, int f2, int s) {
+		Gluing g = new Gluing(s, t1, f1, t2, f2);
+		System.out.println("Gluing "+g);
+		oneConfig.addGluing(g);
+		
+		System.out.println(oneConfig.getVC().getLinks().get(3).get(1).get(6));
+		System.out.println(oneConfig.getVC().getLinks().get(0).get(1).get(6));
+		
+		System.out.println(oneConfig.getVC().getLinks().get(2).get(0).get(5));
+		System.out.println(oneConfig.getVC().getLinks().get(2).get(1).get(6));
+		
 	}
 	
 

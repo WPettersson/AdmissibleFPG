@@ -3,15 +3,17 @@ package se.ewpettersson.admissiblefpg.fpg;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import se.ewpettersson.admissiblefpg.Config;
+import se.ewpettersson.admissiblefpg.ConfigIterator;
 import se.ewpettersson.admissiblefpg.Gluing;
 
-public class Vertex {
+public class Vertex implements Iterable<Config> {
 	List<Integer> contents;
 	List<Vertex> children;
 	List<Config> possibleConfigs;
@@ -101,8 +103,14 @@ public class Vertex {
 		}
 	}
 	
-	private Map<Integer,Integer> getFinalUsedFaces() {
-		Map<Integer,Integer> used = new HashMap<Integer,Integer>(usedFaces);
+	public Map<Integer,Integer> getFinalUsedFaces() {
+		Map<Integer,Integer> used = new HashMap<Integer,Integer>();
+		for(Vertex v: children) {
+			used.putAll(v.getFinalUsedFaces());
+		}
+		for(Integer tetToAdd: toAdd) {
+			used.put(tetToAdd, 0);
+		}
 		for( Arc a: arcsAdded) {
 			used.put(a.t1, used.get(a.t1)+1);
 			used.put(a.t2, used.get(a.t2)+1);
@@ -129,12 +137,12 @@ public class Vertex {
 		for(int i=0;i<6;i++) {
 			Gluing g = new Gluing(i,a.t1,f1,a.t2,f2);
 			Config copy = new Config(c);
+			//System.out.println("Gluing "+g);
 			if (copy.addGluing(g) ) {
 				String desc = "Glued "+g;
 				copy.addDescription(desc);
 				//System.out.println("Glued "+g);
 				addArc(copy);
-				//System.out.println("Unglued "+g);
 			}
 		}
 		// Undo the changes we did.
@@ -193,5 +201,40 @@ public class Vertex {
 	public String toString() {
 		String s = "[Vertex: id="+id+", content="+contents+"]";
 		return s;
+	}
+
+	@Override
+	public Iterator<Config> iterator() {
+		return new ConfigIterator(this);
+	}
+
+	public int getNumChildren() {
+		return children.size();
+	}
+
+	public  List<Vertex> children() {
+
+		return children;
+	}
+
+	public boolean hasConfig() {
+		Iterator<Config> it = new ConfigIterator(this);
+		while(it.hasNext()) {
+			return true;
+//			addArc(it.next());
+//			if (possibleConfigs.size()>0) {
+//				return true;
+//			}
+		}
+		return false;
+	}
+
+	public List<Arc> getArcsAdded() {
+		return arcsAdded;
+	}
+
+	public  List<Integer> getToAdd() {
+		// TODO Auto-generated method stub
+		return toAdd;
 	}
 }

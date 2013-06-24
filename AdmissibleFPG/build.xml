@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project AdmissibleFPG with Jar-in-Jar Loader">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="/home/enigma/uni/Regina/AdmissibleFPG.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="se.ewpettersson.admissiblefpg.Main"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ junit.jar hamcrest-core.jar libtw.jar"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="/home/enigma/git/AdmissibleFPG/AdmissibleFPG/bin"/>
+            <zipfileset dir="/usr/lib64/eclipse-3.7/plugins/org.junit_4.8.2.v4_8_2_v20110321-1705" includes="junit.jar"/>
+            <zipfileset dir="/usr/lib64/eclipse-3.7/plugins/org.hamcrest.core_1.1.0.v20090501071000" includes="hamcrest-core.jar"/>
+            <zipfileset dir="/home/enigma/git/AdmissibleFPG/AdmissibleFPG" includes="libtw.jar"/>
+        </jar>
+    </target>
+</project>
