@@ -27,6 +27,7 @@ public class TreeDecomp {
 	Vertex root;
 
 	int nTets;
+	int tw;
 	
 	FacePairingGraph fpg;
 
@@ -132,6 +133,8 @@ public class TreeDecomp {
 			permutation = qbbAlgo.getPermutation();
 			upperbound = qbbAlgo.getUpperBound();
 		}
+		
+		tw = upperbound;
 		
 		PermutationToTreeDecomposition<InputData> convertor = new PermutationToTreeDecomposition<InputData>( permutation );
 		convertor.setInput( g );
