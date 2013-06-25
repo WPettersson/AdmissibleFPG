@@ -24,6 +24,7 @@ public class Vertex implements Iterable<Config> {
 	List<Arc> arcsAdded;
 	
 	Map<Integer,Integer> usedFaces;
+	Map<Integer,Integer> used;
 	List<Integer> toAdd;
 	Integer id;
 	Integer deg;
@@ -38,6 +39,7 @@ public class Vertex implements Iterable<Config> {
 		decomp = d;
 		children = new ArrayList<Vertex>();
 		usedFaces = new HashMap<Integer,Integer>();
+		used = null;
 	}
 	
 	public Map<Integer, Integer> getUsedFaces() {
@@ -104,16 +106,20 @@ public class Vertex implements Iterable<Config> {
 	}
 	
 	public Map<Integer,Integer> getFinalUsedFaces() {
-		Map<Integer,Integer> used = new HashMap<Integer,Integer>();
-		for(Vertex v: children) {
-			used.putAll(v.getFinalUsedFaces());
-		}
-		for(Integer tetToAdd: toAdd) {
-			used.put(tetToAdd, 0);
-		}
-		for( Arc a: arcsAdded) {
-			used.put(a.t1, used.get(a.t1)+1);
-			used.put(a.t2, used.get(a.t2)+1);
+		if (used == null) {
+			used = new HashMap<Integer,Integer>();
+			for(Vertex v: children) {
+				used.putAll(v.getFinalUsedFaces());
+			}
+			for(Integer tetToAdd: toAdd) {
+				used.put(tetToAdd, 0);
+			}
+			for( Arc a: arcsAdded) {
+				a.setF1(used.get(a.t1));
+				used.put(a.t1, used.get(a.t1)+1);
+				a.setF2(used.get(a.t2));
+				used.put(a.t2, used.get(a.t2)+1);
+			}
 		}
 		return used;
 	}
@@ -218,13 +224,10 @@ public class Vertex implements Iterable<Config> {
 	}
 
 	public boolean hasConfig() {
+		getFinalUsedFaces();
 		Iterator<Config> it = new ConfigIterator(this);
-		while(it.hasNext()) {
+		if(it.hasNext()) {
 			return true;
-//			addArc(it.next());
-//			if (possibleConfigs.size()>0) {
-//				return true;
-//			}
 		}
 		return false;
 	}
@@ -234,7 +237,6 @@ public class Vertex implements Iterable<Config> {
 	}
 
 	public  List<Integer> getToAdd() {
-		// TODO Auto-generated method stub
 		return toAdd;
 	}
 }

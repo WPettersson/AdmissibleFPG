@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import se.ewpettersson.admissiblefpg.fpg.Arc;
 import se.ewpettersson.admissiblefpg.fpg.Vertex;
@@ -17,6 +16,8 @@ public class ConfigIterator implements Iterator<Config> {
 	List<ConfigIterator> children;
 	List<Config> configs;
 	List<Arc> arcsAdded;
+	int[] syms;
+	boolean nothing;
 	HashMap<Integer, Integer> usedFaces;
 	
 	public ConfigIterator(Vertex v) {
@@ -26,9 +27,15 @@ public class ConfigIterator implements Iterator<Config> {
 		configs = new ArrayList<Config>(v.getNumChildren());
 		arcsAdded = new ArrayList<Arc>(v.getArcsAdded());
 		usedFaces = new HashMap<Integer,Integer>();
+		nothing=false;
 		for(Vertex child: v.children()) {
-			children.add(new ConfigIterator(child));
-			configs.add(new Config());
+			ConfigIterator it = new ConfigIterator(child);
+			children.add(it);
+			if(!it.hasNext()) { // One of the children has no possible configurations, no point proceeding?
+				nothing=true;
+			} else {
+				configs.add(it.next());
+			}
 			usedFaces.putAll(child.getFinalUsedFaces());
 		}
 		
@@ -36,93 +43,115 @@ public class ConfigIterator implements Iterator<Config> {
 			usedFaces.put(tetToAdd, 0);
 		}
 		
-		
-		if (children.size() > 0)
-			n = recurse(0);
-		else
-			n = new Config();
-	}
-	@Override
-	public boolean hasNext() {
-		return (n==null);
+		syms= new int[arcsAdded.size()];
+		resetSyms();
+		if (nothing) {
+			n=null;
+		} else {
+			n = recurse(true);
+		}
 	}
 
+	@Override
+	public boolean hasNext() {
+		return (n!=null);
+	}
+
+	private void resetSyms() {
+		for(int i=0;i<children.size();i++)
+			syms[i]=0;
+	}
 	
+	private boolean nextSym(int i) {
+		if (i == arcsAdded.size()) {
+			return false;
+		}
+		if( ! nextSym(i+1)) {
+			syms[i]+=1;
+		}
+		if ( syms[i] == 6) {
+			syms[i] = 0;
+			return false;
+		}
+
+		return true;
+	}
 	
-	private Config recurse(int i) {
-//		Config c = null;
-		
-		if(i == children.size()) {
-			return new Config();
-//			c = configs.get(i);
-//			if (c == null) {
-//				configs.set(i, new Config());
-//			} else {
-//				configs.set(i, null);
-//			}
-//			return c;
+	private Config recurse(boolean first) {
+		Config c = null;
+		// First run through we don't increment the symmetries or find the next config.
+		if (first) {
+
+			// Just try to make the arcs
+			c = addArc(makeConfig(),0);
+			// If we're successful, return this, otherwise we continue on with
+			// the rest of this method, which moves on to the next symmetry
+			if (c != null) {
+				return c;
+			}
+		}
+		// Look for a new config to return
+		while(c==null) {
+			// Try to move to the next set of symmetries. If we're totally reset, 
+			// then try to move on to the next config. If we're also out of those,
+			// we're done so return null.
+			if (! nextSym(0)) {
+				if(! nextConfig(0)) {
+					return null;
+				}
+			}
+			// Now add the arcs. If this works, the while loop breaks and we return.
+			// Otherwise the loop continues and we move on to the next symmetry/config.
+			c = addArc(makeConfig(),0);
+		}
+		return c;
+	}
+	
+	private Config makeConfig() {
+		Config c = new Config();
+		for(Config o: configs) {
+			if ( o!= null) 
+				c.mergeWith(o);
+		}
+		for(int t:v.getToAdd()) {
+			c.addTetrahedra(t);
+		}
+		return c;
+	}
+	
+	private Config recurse() {
+		return recurse(false);
+	}
+
+	private boolean nextConfig(int i) {
+		if (i == children.size()) {
+			return false;
 		}
 		ConfigIterator it = children.get(i);
-		
-		if ( i < (children.size()-1)) {
-			if (!children.get(i+1).hasNext()) {
-				children.set(i+1, new ConfigIterator(v.children().get(i+1)));
-				configs.set(i+1, new Config(children.get(i+1).next()));
+
+		boolean next = nextConfig(i+1);
+		if (!next) {
+			if (it.hasNext()) {
 				configs.set(i, it.next());
-			}
-		} else {
-			configs.set(i,  it.next());
-		}
-		
-		
-		Config childConfig = configs.get(i); 
-		if (childConfig != null) { 
-			Config nextChild = recurse(i+1);
-			if (nextChild == null) {
-				return null;
-			}
-			childConfig.mergeWith(nextChild);
-			for(Integer tetToAdd: v.getToAdd()) {
-				childConfig.addTetrahedra(tetToAdd);
-			}
-			
-			while((childConfig != null) && (!addArc(childConfig))) {
-				if ( i < (children.size()-1)) {
-					if (!children.get(i+1).hasNext()) {
-						children.set(i+1, new ConfigIterator(v.children().get(i+1)));
-						configs.set(i+1, new Config(children.get(i+1).next()));
-						configs.set(i, it.next());
-					}
-				} else {
-					configs.set(i,  it.next());
+				return true;
+			} else {
+				ConfigIterator newIt = new ConfigIterator(v.children().get(i));
+				children.set(i, newIt);
+				Config newConfig = newIt.next();
+				if(newConfig == null) {
+					return false;
 				}
-				childConfig = configs.get(i);
-				if (childConfig != null) { 
-					childConfig.mergeWith(recurse(i+1));
-					for(Integer tetToAdd: v.getToAdd()) {
-						childConfig.addTetrahedra(tetToAdd);
-					}
-				}
+				configs.set(i, new Config(newConfig));
+				return false;
 			}
-		}
-		
-		
-		return childConfig;
-		
+		} 
+		return true;
 	}
 	
 	@Override
 	public Config next() {
 		Config next = n;
-		if (children.size() > 0) {
-			n = recurse(0);
-		} else {
-			if (n==null) {
-				n = new Config();
-			} else {
-				n = null;
-			}
-		}
+		n = recurse();
 		return next;
 	}
 
@@ -132,35 +161,24 @@ public class ConfigIterator implements Iterator<Config> {
 		
 	}
 
-	private boolean addArc(Config c) {
-		if (arcsAdded.size() == 0) {
-			return true;
+	private Config addArc(Config c, int i) {
+		if (arcsAdded.size() == i) {
+			return c;
 		}
-		Arc a = arcsAdded.get(0);
-		arcsAdded.remove(a);
-		Map<Integer,Integer> uf = v.getUsedFaces();
-		int f1 = usedFaces.get(a.t1);
-		usedFaces.put(a.t1,f1+1);
-		int f2 = usedFaces.get(a.t2);
-		usedFaces.put(a.t2,f2+1);
-		for(int i=0;i<6;i++) {
-			Gluing g = new Gluing(i,a.t1,f1,a.t2,f2);
-			Config copy = new Config(c);
-			//System.out.println("Gluing "+g);
-			if (copy.addGluing(g) ) {
-				String desc = "Glued "+g;
-				copy.addDescription(desc);
-				//System.out.println("Glued "+g);
-				if (addArc(copy)) {
-					return true;
-				}
+		Arc a = arcsAdded.get(i);
+		Gluing g = new Gluing(syms[i],a.t1,a.f1,a.t2,a.f2);
+		Config copy = new Config(c);
+		//System.out.println("Gluing "+g);
+		if (copy.addGluing(g) ) {
+			String desc = "Glued "+g;
+			copy.addDescription(desc);
+			//System.out.println("Glued "+g);
+			Config good = addArc(copy,i+1);
+			if (good != null) {
+				return good;
 			}
 		}
-		// Undo the changes we did.
-		usedFaces.put(a.t2,f2);
-		usedFaces.put(a.t1,f1);
-		arcsAdded.add(0, a);
-		return false;
+		return null;
 	}
 	
 	

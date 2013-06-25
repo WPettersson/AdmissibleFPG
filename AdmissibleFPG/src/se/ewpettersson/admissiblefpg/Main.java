@@ -11,49 +11,67 @@ import se.ewpettersson.admissiblefpg.fpg.FacePairingGraph;
 import se.ewpettersson.admissiblefpg.fpg.TreeDecomp;
 
 public class Main {
+	static long totalTime;
+	static int count;
 	public static void main(String[] args) {
-		long totalTime = 0;
-		int count = 0;
+		totalTime = 0;
+		count = 0;
 		Scanner stdin = null;
 		if (args!=null && args.length > 0) {
-			try {
-				stdin = new Scanner(new File(args[0]));
-			} catch (FileNotFoundException e) {
-				
-				e.printStackTrace();
+			for( String fname : args) {
+				System.out.println(fname);
+				try {
+					stdin = new Scanner(new File(fname));
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+				checkGraphs(stdin);
 			}
 		} else {
 			stdin = new Scanner(System.in);
 		}
-		while(stdin.hasNextLine()) {
-			String s = stdin.nextLine();
+		checkGraphs(stdin);
+		System.err.println();
+		System.err.println(""+count+" graphs took "+totalTime+"ms total, "+(totalTime/count)+"ms per graph on average");
+	}
+	
+	
+	private static void checkGraphs(Scanner input) {
+		while(input.hasNextLine()) {
+			String s = input.nextLine();
 			Stopwatch timer = new Stopwatch();
 			 
-			timer.start();
+			
 			FacePairingGraph f = new FacePairingGraph(s);
 			boolean adm = false;
 			boolean ok = true;
+			int treewidth=-1;
+			long decompTime = -1;
 			try {
+				timer.start();
 				TreeDecomp t = new TreeDecomp(f);
+				timer.stop();
+				decompTime = timer.getTime();
+				timer.reset();
+				timer.start();
 				adm = t.isAdmissible();
+				timer.stop();
 				if(!adm) {
 					System.err.println("Bad");
 				}
+				treewidth=t.getTW();
 				
 			} catch (InputException e) {
 				System.err.println("Bad face pairing graph given");
 				ok = false;
 			}
-			timer.stop();
 			totalTime+=timer.getTime();
 			if(ok) {
-				System.out.println(s+","+adm+","+timer.getTime());
+				System.out.println(s+","+adm+","+treewidth+","+decompTime+","+timer.getTime());
 			}
 
 			count+=1;
 			System.err.print(".");
 		}
-		System.err.println();
-		System.err.println(""+count+" graphs took "+totalTime+"ms total, "+(totalTime/count)+"ms per graph on average");
 	}
 }
