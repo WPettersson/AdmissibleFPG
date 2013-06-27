@@ -15,9 +15,12 @@ public class ConfigIterator implements Iterator<Config> {
 	
 	List<ConfigIterator> children;
 	List<Config> configs;
+	List<Config> configsHere;
 	List<Arc> arcsAdded;
 	int[] syms;
 	boolean nothing;
+	boolean configsFound;
+	int configsIndex;
 	HashMap<Integer, Integer> usedFaces;
 	
 	public ConfigIterator(Vertex v) {
@@ -25,9 +28,12 @@ public class ConfigIterator implements Iterator<Config> {
 		n=null;
 		children = new ArrayList<ConfigIterator>(v.getNumChildren());
 		configs = new ArrayList<Config>(v.getNumChildren());
+		configsHere = new ArrayList<Config>();
 		arcsAdded = new ArrayList<Arc>(v.getArcsAdded());
 		usedFaces = new HashMap<Integer,Integer>();
 		nothing=false;
+		configsFound=false;
+		configsIndex=0;
 		for(Vertex child: v.children()) {
 			ConfigIterator it = new ConfigIterator(child);
 			children.add(it);
@@ -49,11 +55,15 @@ public class ConfigIterator implements Iterator<Config> {
 			n=null;
 		} else {
 			n = recurse(true);
+			configsHere.add(n);
 		}
 	}
 
 	@Override
 	public boolean hasNext() {
+		if(configsFound) {
+			return(configsIndex < configsHere.size());
+		}
 		return (n!=null);
 	}
 
@@ -135,9 +145,11 @@ public class ConfigIterator implements Iterator<Config> {
 				configs.set(i, it.next());
 				return true;
 			} else {
-				ConfigIterator newIt = new ConfigIterator(v.children().get(i));
-				children.set(i, newIt);
-				Config newConfig = newIt.next();
+				it.reset();
+				Config newConfig = it.next();
+				//ConfigIterator newIt = new ConfigIterator(v.children().get(i));
+				//children.set(i, newIt);
+				//Config newConfig = newIt.next();
 				if(newConfig == null) {
 					return false;
 				}
@@ -148,10 +160,22 @@ public class ConfigIterator implements Iterator<Config> {
 		return true;
 	}
 	
+	private void reset() {
+		configsFound = true;
+		configsIndex = 0;
+	}
+
 	@Override
 	public Config next() {
+		if(configsFound) {
+			if(configsHere.size()>=configsIndex) {
+				return null;
+			}
+			return configsHere.get(configsIndex++);
+		}
 		Config next = n;
 		n = recurse();
+		configsHere.add(n);
 		return next;
 	}
 
