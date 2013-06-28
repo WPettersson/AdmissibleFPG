@@ -50,5 +50,12 @@ public class Timer {
 	public long getTime() {
 		return time*1000;
 	}
+
+
+
+	public void reset() {
+		start = getCpuTime();
+		
+	}
 	
 }

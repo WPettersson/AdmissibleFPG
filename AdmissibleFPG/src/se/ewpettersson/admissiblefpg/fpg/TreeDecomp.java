@@ -199,6 +199,10 @@ public class TreeDecomp {
 		System.out.println(oneConfig.getVC().getLinks().get(2).get(1).get(6));
 		
 	}
+
+	public int getTW() {
+		return tw;
+	}
 	
 
 
