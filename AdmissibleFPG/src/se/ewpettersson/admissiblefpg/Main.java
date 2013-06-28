@@ -5,10 +5,10 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 import nl.uu.cs.treewidth.input.InputException;
-import nl.uu.cs.treewidth.timing.Stopwatch;
 
 import se.ewpettersson.admissiblefpg.fpg.FacePairingGraph;
 import se.ewpettersson.admissiblefpg.fpg.TreeDecomp;
+import se.ewpettersson.admissiblefpg.util.Timer;
 
 public class Main {
 	public static void main(String[] args) {
@@ -27,7 +27,7 @@ public class Main {
 		}
 		while(stdin.hasNextLine()) {
 			String s = stdin.nextLine();
-			Stopwatch timer = new Stopwatch();
+			Timer timer = new Timer();
 			 
 			timer.start();
 			FacePairingGraph f = new FacePairingGraph(s);
