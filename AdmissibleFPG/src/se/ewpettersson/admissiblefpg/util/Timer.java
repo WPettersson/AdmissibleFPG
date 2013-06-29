@@ -48,7 +48,7 @@ public class Timer {
 
 
 	public long getTime() {
-		return time*1000;
+		return time/1000000; // ms not ns
 	}
 
 

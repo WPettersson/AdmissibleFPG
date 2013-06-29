@@ -1,7 +1,6 @@
 package se.ewpettersson.admissiblefpg;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,7 +20,6 @@ public class ConfigIterator implements Iterator<Config> {
 	boolean nothing;
 	boolean configsFound;
 	int configsIndex;
-	HashMap<Integer, Integer> usedFaces;
 	
 	public ConfigIterator(Vertex v) {
 		this.v=v;
@@ -30,7 +28,6 @@ public class ConfigIterator implements Iterator<Config> {
 		configs = new ArrayList<Config>(v.getNumChildren());
 		configsHere = new ArrayList<Config>();
 		arcsAdded = new ArrayList<Arc>(v.getArcsAdded());
-		usedFaces = new HashMap<Integer,Integer>();
 		nothing=false;
 		configsFound=false;
 		configsIndex=0;
@@ -42,11 +39,6 @@ public class ConfigIterator implements Iterator<Config> {
 			} else {
 				configs.add(it.next());
 			}
-			usedFaces.putAll(child.getFinalUsedFaces());
-		}
-		
-		for(Integer tetToAdd: v.getToAdd()) {
-			usedFaces.put(tetToAdd, 0);
 		}
 		
 		syms= new int[arcsAdded.size()];
@@ -172,6 +164,9 @@ public class ConfigIterator implements Iterator<Config> {
 				return null;
 			}
 			return configsHere.get(configsIndex++);
+		}
+		if(nothing) {
+			return null;
 		}
 		Config next = n;
 		n = recurse();
