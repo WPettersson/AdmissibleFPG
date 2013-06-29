@@ -91,7 +91,8 @@ public class ConfigIterator implements Iterator<Config> {
 		Config c = null;
 		// First run through we don't increment the symmetries or find the next config.
 		if (first) {
-
+			first=false;
+			
 			// Just try to make the arcs
 			c = addArc(makeConfig(),0);
 			// If we're successful, return this, otherwise we continue on with
@@ -99,7 +100,6 @@ public class ConfigIterator implements Iterator<Config> {
 			if (c != null) {
 				return c;
 			}
-			first=false;
 		}
 		// Look for a new config to return
 		while(c==null) {
