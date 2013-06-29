@@ -156,9 +156,10 @@ public class ConfigIterator implements Iterator<Config> {
 				//children.set(i, newIt);
 				//Config newConfig = newIt.next();
 				if(newConfig == null) {
+					nothing=true;
 					return false;
 				}
-				configs.set(i, new Config(newConfig));
+				configs.set(i, newConfig);
 				return false;
 			}
 		} 
@@ -173,7 +174,7 @@ public class ConfigIterator implements Iterator<Config> {
 	@Override
 	public Config next() {
 		if(configsFound) {
-			if(configsHere.size()>=configsIndex) {
+			if(configsHere.size()<=configsIndex) {
 				return null;
 			}
 			return configsHere.get(configsIndex++);
