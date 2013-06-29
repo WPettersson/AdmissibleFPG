@@ -21,6 +21,7 @@ public class ConfigIterator implements Iterator<Config> {
 	boolean configsFound;
 	int configsIndex;
 	boolean foundNext;
+	boolean first;
 	
 	public ConfigIterator(Vertex v) {
 		this.v=v;
@@ -58,7 +59,7 @@ public class ConfigIterator implements Iterator<Config> {
 			return(configsIndex < configsHere.size());
 		}
 		if (!foundNext) {
-			n = recurse(true);
+			n = recurse();
 			configsHere.add(n);
 			foundNext = true;
 		}
@@ -85,7 +86,7 @@ public class ConfigIterator implements Iterator<Config> {
 		return true;
 	}
 	
-	private Config recurse(boolean first) {
+	private Config recurse() {
 		Config c = null;
 		// First run through we don't increment the symmetries or find the next config.
 		if (first) {
@@ -97,6 +98,7 @@ public class ConfigIterator implements Iterator<Config> {
 			if (c != null) {
 				return c;
 			}
+			first=false;
 		}
 		// Look for a new config to return
 		while(c==null) {
@@ -127,9 +129,6 @@ public class ConfigIterator implements Iterator<Config> {
 		return c;
 	}
 	
-	private Config recurse() {
-		return recurse(false);
-	}
 
 	private boolean nextConfig(int i) {
 		if (i == children.size()) {
