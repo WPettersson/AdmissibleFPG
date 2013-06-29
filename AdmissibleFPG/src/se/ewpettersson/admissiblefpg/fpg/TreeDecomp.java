@@ -204,6 +204,22 @@ public class TreeDecomp {
 		return tw;
 	}
 	
+	public String toString() {
+		String s="[";
+		for(Vertex v : vertices) {
+			s+= v.toString() + ", ";
+		}
+		if(s.endsWith(", "))
+			s = s.substring(0,s.length()-2);
+		s+="]\n";
+		for(Edge e: edges) {
+			s+= e.toString() + ", ";
+		}
+		if(s.endsWith(", "))
+			s = s.substring(0,s.length()-2);
+		s+="]\n";
+		return s;
+	}
 
 
 }
