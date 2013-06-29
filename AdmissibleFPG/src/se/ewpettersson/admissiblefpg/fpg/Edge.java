@@ -39,4 +39,8 @@ public class Edge {
 	public void use() {
 		used = true;
 	}
+	
+	public String toString() {
+		return "{"+endPoints.get(0).id+" "+endPoints.get(1).id+"}";
+	}
 }
