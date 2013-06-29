@@ -20,6 +20,7 @@ public class ConfigIterator implements Iterator<Config> {
 	boolean nothing;
 	boolean configsFound;
 	int configsIndex;
+	boolean foundNext;
 	
 	public ConfigIterator(Vertex v) {
 		this.v=v;
@@ -45,9 +46,9 @@ public class ConfigIterator implements Iterator<Config> {
 		resetSyms();
 		if (nothing) {
 			n=null;
+			foundNext = true;
 		} else {
-			n = recurse(true);
-			configsHere.add(n);
+			foundNext = false;
 		}
 	}
 
@@ -55,6 +56,11 @@ public class ConfigIterator implements Iterator<Config> {
 	public boolean hasNext() {
 		if(configsFound) {
 			return(configsIndex < configsHere.size());
+		}
+		if (!foundNext) {
+			n = recurse(true);
+			configsHere.add(n);
+			foundNext = true;
 		}
 		return (n!=null);
 	}
@@ -168,10 +174,12 @@ public class ConfigIterator implements Iterator<Config> {
 		if(nothing) {
 			return null;
 		}
-		Config next = n;
-		n = recurse();
-		configsHere.add(n);
-		return next;
+		if(!foundNext) {
+			n = recurse();
+			configsHere.add(n);
+		}
+		foundNext = false;
+		return n;
 	}
 
 	@Override
