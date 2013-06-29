@@ -39,11 +39,11 @@ public class FacePairingGraph {
 			// such showing.  That means either we are at a "higher"
 			// tet, or same tet but "higher" face.
 			if (tet > adjTet) {
-				Arc a = new Arc(tet,adjTet);
+				Arc a = new Arc(adjTet,tet);
 				arcs.add(a);
 			} else if ( tet == adjTet ) {
 				if (face > adjFace) {
-					Arc a = new Arc(tet,adjTet);
+					Arc a = new Arc(adjTet,tet);
 					arcs.add(a);
 				}
 			}
