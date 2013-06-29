@@ -16,10 +16,12 @@ public class ConfigIterator implements Iterator<Config> {
 	List<Config> configs;
 	List<Config> configsHere;
 	List<Arc> arcsAdded;
+	Config[] stackConfigs;
 	int[] syms;
 	boolean nothing;
 	boolean configsFound;
 	int configsIndex;
+	int changed;
 	boolean foundNext;
 	boolean first;
 	
@@ -30,6 +32,7 @@ public class ConfigIterator implements Iterator<Config> {
 		configs = new ArrayList<Config>(v.getNumChildren());
 		configsHere = new ArrayList<Config>();
 		arcsAdded = new ArrayList<Arc>(v.getArcsAdded());
+		stackConfigs = new Config[v.getArcsAdded().size()+1];
 		nothing=false;
 		configsFound=false;
 		configsIndex=0;
@@ -44,6 +47,7 @@ public class ConfigIterator implements Iterator<Config> {
 		}
 		
 		syms= new int[arcsAdded.size()];
+		changed=0;
 		resetSyms();
 		if (nothing) {
 			n=null;
@@ -78,6 +82,7 @@ public class ConfigIterator implements Iterator<Config> {
 		}
 		if( ! nextSym(i+1)) {
 			syms[i]+=1;
+			changed = i;
 		}
 		if ( syms[i] == 6) {
 			syms[i] = 0;
@@ -93,8 +98,9 @@ public class ConfigIterator implements Iterator<Config> {
 		if (first) {
 			first=false;
 			
+			stackConfigs[0] = makeConfig();
 			// Just try to make the arcs
-			c = addArc(makeConfig(),0);
+			c = addArc(0);
 			// If we're successful, return this, otherwise we continue on with
 			// the rest of this method, which moves on to the next symmetry
 			if (c != null) {
@@ -110,10 +116,11 @@ public class ConfigIterator implements Iterator<Config> {
 				if(! nextConfig(0)) {
 					return null;
 				}
+				stackConfigs[0] = makeConfig();
 			}
 			// Now add the arcs. If this works, the while loop breaks and we return.
 			// Otherwise the loop continues and we move on to the next symmetry/config.
-			c = addArc(makeConfig(),0);
+			c = addArc(changed);
 		}
 		return c;
 	}
@@ -188,22 +195,24 @@ public class ConfigIterator implements Iterator<Config> {
 		
 	}
 
-	private Config addArc(Config c, int i) {
+	private Config addArc(int i) {
 		if (arcsAdded.size() == i) {
-			return c;
+			return stackConfigs[i];
 		}
 		Arc a = arcsAdded.get(i);
 		Gluing g = new Gluing(syms[i],a.t1,a.f1,a.t2,a.f2);
-		Config copy = new Config(c);
-		//System.out.println("Gluing "+g);
+		Config copy = new Config(stackConfigs[i]);
 		if (copy.addGluing(g) ) {
 			String desc = "Glued "+g;
 			copy.addDescription(desc);
-			//System.out.println("Glued "+g);
-			Config good = addArc(copy,i+1);
+			stackConfigs[i+1] = copy;
+			Config good = addArc(i+1);
 			if (good != null) {
 				return good;
 			}
+		} else {
+			for(int k=i+1;k<syms.length;k++)
+				syms[k] = 5;
 		}
 		return null;
 	}
