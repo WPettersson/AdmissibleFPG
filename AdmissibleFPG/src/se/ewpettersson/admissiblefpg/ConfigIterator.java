@@ -49,6 +49,7 @@ public class ConfigIterator implements Iterator<Config> {
 			n=null;
 			foundNext = true;
 		} else {
+			first=true;
 			foundNext = false;
 		}
 	}
