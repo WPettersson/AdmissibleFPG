@@ -221,5 +221,9 @@ public class TreeDecomp {
 		return s;
 	}
 
+	public int getMaxConfigs() {
+		return root.getMaxConfigs();
+	}
+
 
 }

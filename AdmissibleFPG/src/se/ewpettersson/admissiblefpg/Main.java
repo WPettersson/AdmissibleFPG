@@ -45,6 +45,7 @@ public class Main {
 			boolean ok = true;
 			int treewidth=-1;
 			long decompTime = -1;
+			int maxConfigs=-1;
 			try {
 				timer.start();
 				TreeDecomp t = new TreeDecomp(f);
@@ -57,6 +58,7 @@ public class Main {
 					System.err.println("Bad");
 				}
 				treewidth=t.getTW();
+				maxConfigs = t.getMaxConfigs();
 				
 			} catch (InputException e) {
 				System.err.println("Bad face pairing graph given");
@@ -64,7 +66,7 @@ public class Main {
 			}
 			totalTime+=timer.getTime();
 			if(ok) {
-				System.out.println(s+","+adm+","+treewidth+","+decompTime+","+timer.getTime());
+				System.out.println(s+","+adm+","+treewidth+","+decompTime+","+timer.getTime()+","+maxConfigs);
 			}
 
 			count+=1;

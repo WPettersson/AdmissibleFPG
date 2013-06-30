@@ -30,7 +30,12 @@ public class Vertex implements Iterable<Config> {
 	Integer deg;
 	boolean isRoot;
 	TreeDecomp decomp;
+	int maxConfigs;
 	
+	public int getMaxConfigs() {
+		return maxConfigs;
+	}
+
 	public Vertex(List<Integer> contents, Integer id, TreeDecomp d) {
 		this.id = id;
 		this.contents = contents;
@@ -90,9 +95,12 @@ public class Vertex implements Iterable<Config> {
 	
 	private void findConfigs() {
 		childrenConfigs = new ArrayList<List<Config>>();
+		maxConfigs=0;
 		for( Vertex child: children) {
 			childrenConfigs.add(child.getConfigs());
 			usedFaces.putAll(child.getFinalUsedFaces());
+			if (child.getMaxConfigs() > maxConfigs)
+				maxConfigs = child.getMaxConfigs();
 		}
 		
 		List<Config> configsToTry = toTry();
@@ -102,6 +110,9 @@ public class Vertex implements Iterable<Config> {
 				usedFaces.put(tetToAdd, 0);
 			}
 			addArc(c);
+		}
+		if (possibleConfigs.size() > maxConfigs) {
+			maxConfigs = possibleConfigs.size();
 		}
 	}
 	
@@ -227,6 +238,7 @@ public class Vertex implements Iterable<Config> {
 		getFinalUsedFaces();
 		Iterator<Config> it = new ConfigIterator(this);
 		if(it.hasNext()) {
+			maxConfigs = ((ConfigIterator) it).getCount();
 			return true;
 		}
 		return false;

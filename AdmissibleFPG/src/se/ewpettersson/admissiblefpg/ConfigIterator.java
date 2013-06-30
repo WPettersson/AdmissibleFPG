@@ -221,5 +221,15 @@ public class ConfigIterator implements Iterator<Config> {
 		return null;
 	}
 	
+	public int getCount() {
+		int num = configsHere.size();
+		for( ConfigIterator childIterator: children) {
+			int childrenSize = childIterator.getCount();
+			if ( childrenSize > num) {
+				num = childrenSize;
+			}
+		}
+		return num;
+	}
 	
 }
