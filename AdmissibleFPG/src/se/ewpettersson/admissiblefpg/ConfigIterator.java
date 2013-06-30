@@ -198,6 +198,9 @@ public class ConfigIterator implements Iterator<Config> {
 
 	private Config addArc(int i) {
 		if (arcsAdded.size() == i) {
+			// If we've already seen this config, don't find it again.
+			if (configsHere.contains(stackConfigs[i]))
+				return null;
 			return stackConfigs[i];
 		}
 		Arc a = arcsAdded.get(i);
