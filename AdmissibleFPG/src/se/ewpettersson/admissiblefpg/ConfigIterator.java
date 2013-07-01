@@ -169,6 +169,12 @@ public class ConfigIterator implements Iterator<Config> {
 	private void reset() {
 		configsFound = true;
 		configsIndex = 0;
+		
+		children.clear();
+		children = null;
+		configs.clear();
+		configs = null;
+
 	}
 
 	@Override

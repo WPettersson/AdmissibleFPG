@@ -134,7 +134,7 @@ public class TreeDecomp {
 			upperbound = qbbAlgo.getUpperBound();
 		}
 		
-		tw = upperbound;
+		tw = upperbound+1;
 		
 		PermutationToTreeDecomposition<InputData> convertor = new PermutationToTreeDecomposition<InputData>( permutation );
 		convertor.setInput( g );
@@ -173,8 +173,8 @@ public class TreeDecomp {
 	
 	
 	public boolean isAdmissible() {
-		return root.hasConfig();
-		//return (root.getConfigs().size() > 0);
+		//return root.hasConfig();
+		return (root.getConfigs().size() > 0);
 	}
 	
 	public List<Edge> getEdges() {
@@ -201,6 +201,8 @@ public class TreeDecomp {
 	}
 
 	public int getTW() {
+		if (tw<0) 
+			tw=1;
 		return tw;
 	}
 	

@@ -101,6 +101,7 @@ public class Vertex implements Iterable<Config> {
 			usedFaces.putAll(child.getFinalUsedFaces());
 			if (child.getMaxConfigs() > maxConfigs)
 				maxConfigs = child.getMaxConfigs();
+			child.forget();
 		}
 		
 		List<Config> configsToTry = toTry();
@@ -116,6 +117,10 @@ public class Vertex implements Iterable<Config> {
 		}
 	}
 	
+	private void forget() {
+		possibleConfigs = null;
+	}
+
 	public Map<Integer,Integer> getFinalUsedFaces() {
 		if (used == null) {
 			used = new HashMap<Integer,Integer>();

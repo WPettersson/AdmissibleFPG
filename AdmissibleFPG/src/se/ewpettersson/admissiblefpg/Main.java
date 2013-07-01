@@ -2,6 +2,8 @@ package se.ewpettersson.admissiblefpg;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import nl.uu.cs.treewidth.input.InputException;
@@ -12,10 +14,15 @@ import se.ewpettersson.admissiblefpg.util.Timer;
 
 public class Main {
 	static long totalTime;
-	static int count;
+	
+	static Map<Integer,Long> runTimes;
+	static Map<Integer,Integer> configCounts;
+	static Map<Integer,Integer> count;
+
+	
 	public static void main(String[] args) {
 		totalTime = 0;
-		count = 0;
+
 		Scanner stdin = null;
 		if (args!=null && args.length > 0) {
 			for( String fname : args) {
@@ -25,14 +32,29 @@ public class Main {
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				}
+				runTimes = new HashMap<Integer,Long>();
+				configCounts = new HashMap<Integer,Integer>();
+				count = new HashMap<Integer,Integer>();
 				checkGraphs(stdin);
+				for(Integer key: runTimes.keySet()) {
+					System.err.println("tw: "+key+" graphs took " + runTimes.get(key)/count.get(key) + " avg, maxConfigs = "+configCounts.get(key));;
+				}
+				
 			}
 		} else {
 			stdin = new Scanner(System.in);
+			runTimes = new HashMap<Integer,Long>();
+			configCounts = new HashMap<Integer,Integer>();
+			count = new HashMap<Integer,Integer>();
+	
+			checkGraphs(stdin);
+			System.err.println();
+			for(Integer key: runTimes.keySet()) {
+				System.err.println("tw: "+key+" graphs took " + runTimes.get(key)/count.get(key) + " avg, maxConfigs = "+configCounts.get(key));;
+			}
 		}
-		checkGraphs(stdin);
-		System.err.println();
-		System.err.println(""+count+" graphs took "+totalTime+"ms total, "+(totalTime/count)+"ms per graph on average");
+		//System.err.println();
+		//System.err.println(""+count+" graphs took "+totalTime+"ms total, "+(totalTime/count)+"ms per graph on average");
 	}
 	
 	
@@ -41,6 +63,8 @@ public class Main {
 			String s = input.nextLine();
 			Timer timer = new Timer();
 			FacePairingGraph f = new FacePairingGraph(s);
+
+
 			boolean adm = false;
 			boolean ok = true;
 			int treewidth=-1;
@@ -59,17 +83,28 @@ public class Main {
 				}
 				treewidth=t.getTW();
 				maxConfigs = t.getMaxConfigs();
+				if(!runTimes.containsKey(treewidth)  )
+					runTimes.put(treewidth, 0L);
+				runTimes.put(treewidth, runTimes.get(treewidth)+timer.getTime());
+				if(!configCounts.containsKey(treewidth))
+					configCounts.put(treewidth, maxConfigs);
+				else
+					if ( maxConfigs > configCounts.get(treewidth))
+						configCounts.put(treewidth, maxConfigs);
+				if(!count.containsKey(treewidth)) 
+					count.put(treewidth, 1);
+				else
+					count.put(treewidth, count.get(treewidth)+1);
 				
 			} catch (InputException e) {
 				System.err.println("Bad face pairing graph given");
 				ok = false;
 			}
-			totalTime+=timer.getTime();
+			//totalTime+=timer.getTime();
 			if(ok) {
 				System.out.println(s+","+adm+","+treewidth+","+decompTime+","+timer.getTime()+","+maxConfigs);
 			}
 
-			count+=1;
 			System.err.print(".");
 		}
 	}
