@@ -170,11 +170,14 @@ public class ConfigIterator implements Iterator<Config> {
 		configsFound = true;
 		configsIndex = 0;
 		
-		children.clear();
-		children = null;
-		configs.clear();
-		configs = null;
-
+		if(children != null) { 
+			children.clear();
+			children = null;
+		}
+		if(configs != null) {
+			configs.clear();
+			configs = null;
+		}
 	}
 
 	@Override
