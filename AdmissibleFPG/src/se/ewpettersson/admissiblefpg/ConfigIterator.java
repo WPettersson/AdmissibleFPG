@@ -22,6 +22,7 @@ public class ConfigIterator implements Iterator<Config> {
 	boolean configsFound;
 	int configsIndex;
 	int changed;
+	int count;
 	boolean foundNext;
 	boolean first;
 	
@@ -36,6 +37,7 @@ public class ConfigIterator implements Iterator<Config> {
 		nothing=false;
 		configsFound=false;
 		configsIndex=0;
+		count=-1;
 		for(Vertex child: v.children()) {
 			ConfigIterator it = new ConfigIterator(child);
 			children.add(it);
@@ -169,7 +171,7 @@ public class ConfigIterator implements Iterator<Config> {
 	private void reset() {
 		configsFound = true;
 		configsIndex = 0;
-		
+		count = getCount();
 		if(children != null) { 
 			children.clear();
 			children = null;
@@ -216,8 +218,8 @@ public class ConfigIterator implements Iterator<Config> {
 		Gluing g = new Gluing(syms[i],a.t1,a.f1,a.t2,a.f2);
 		Config copy = new Config(stackConfigs[i]);
 		if (copy.addGluing(g) ) {
-			String desc = "Glued "+g;
-			copy.addDescription(desc);
+//			String desc = "Glued "+g;
+//			copy.addDescription(desc);
 			stackConfigs[i+1] = copy;
 			Config good = addArc(i+1);
 			if (good != null) {
@@ -231,6 +233,9 @@ public class ConfigIterator implements Iterator<Config> {
 	}
 	
 	public int getCount() {
+		if(count > 0) {
+			return count;
+		}
 		int num = configsHere.size();
 		for( ConfigIterator childIterator: children) {
 			int childrenSize = childIterator.getCount();
