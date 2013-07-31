@@ -22,8 +22,19 @@ public class Main {
 	
 	public static void main(String[] args) {
 		totalTime = 0;
-
+		boolean tw_only = false;
 		Scanner stdin = null;
+		if (args!=null && args.length > 0) {
+			if (args[1].equals("--treewidth-only")) {
+				tw_only = true;
+			}
+			
+		}
+		if (tw_only) {
+			stdin = new Scanner(System.in);
+			getWidths(stdin);
+			System.exit(0);
+		}
 		if (args!=null && args.length > 0) {
 			for( String fname : args) {
 				System.out.println(fname);
@@ -57,6 +68,26 @@ public class Main {
 		//System.err.println(""+count+" graphs took "+totalTime+"ms total, "+(totalTime/count)+"ms per graph on average");
 	}
 	
+	private static void getWidths(Scanner input) {
+		while(input.hasNextLine()) {
+			String s = input.nextLine();
+			FacePairingGraph f = new FacePairingGraph(s);
+			boolean ok = true;
+			int treewidth=-1;
+			try {
+				TreeDecomp t = new TreeDecomp(f);
+				treewidth=t.getTW();
+			} catch (InputException e) {
+				System.err.println("Bad face pairing graph given");
+				ok = false;
+			}
+			//totalTime+=timer.getTime();
+			if(ok) {
+				System.out.println(treewidth);
+			}
+
+		}
+	}
 	
 	private static void checkGraphs(Scanner input) {
 		while(input.hasNextLine()) {
