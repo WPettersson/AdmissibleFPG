@@ -161,8 +161,8 @@ public class Vertex implements Iterable<Config> {
 			Config copy = new Config(c);
 			//System.out.println("Gluing "+g);
 			if (copy.addGluing(g) ) {
-				String desc = "Glued "+g;
-				copy.addDescription(desc);
+//				String desc = "Glued "+g;
+//				copy.addDescription(desc);
 				//System.out.println("Glued "+g);
 				addArc(copy);
 			}
