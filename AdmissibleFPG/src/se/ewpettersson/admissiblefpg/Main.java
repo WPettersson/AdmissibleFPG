@@ -25,7 +25,7 @@ public class Main {
 		boolean tw_only = false;
 		Scanner stdin = null;
 		if (args!=null && args.length > 0) {
-			if (args[1].equals("--treewidth-only")) {
+			if (args[0].equals("--treewidth-only")) {
 				tw_only = true;
 			}
 			
