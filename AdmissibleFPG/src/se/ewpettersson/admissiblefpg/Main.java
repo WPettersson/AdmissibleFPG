@@ -23,12 +23,29 @@ public class Main {
 	public static void main(String[] args) {
 		totalTime = 0;
 		boolean tw_only = false;
+		boolean decomp = false;
 		Scanner stdin = null;
 		if (args!=null && args.length > 0) {
 			if (args[0].equals("--treewidth-only")) {
 				tw_only = true;
 			}
 			
+		}
+		if (args!=null && args.length > 0) {
+			if (args[0].equals("--show-decomp")) {
+				decomp = true;
+			}
+		}
+		if (decomp) {
+			stdin = new Scanner(System.in);
+//			try { // Eclipse can't redirect stdin as part of a run configuration.
+//				stdin = new Scanner(new File("/home/enigma/tmp/AdmissibleResults/6.pairs"));
+//			} catch (FileNotFoundException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+			getOrder(stdin);
+			System.exit(0);
 		}
 		if (tw_only) {
 			stdin = new Scanner(System.in);
@@ -89,6 +106,25 @@ public class Main {
 		}
 	}
 	
+	private static void getOrder(Scanner input) {
+		while(input.hasNextLine()) {
+			String s = input.nextLine();
+			FacePairingGraph f = new FacePairingGraph(s);
+			boolean ok = true;
+			TreeDecomp t = null;
+			try {
+				t = new TreeDecomp(f);
+			} catch (InputException e) {
+				System.err.println("Bad face pairing graph given");
+				ok = false;
+			}
+			//totalTime+=timer.getTime();
+			if(ok) {
+				System.out.println(t.vertexOrder());
+			}
+
+		}
+	}
 	private static void checkGraphs(Scanner input) {
 		while(input.hasNextLine()) {
 			String s = input.nextLine();

@@ -256,4 +256,18 @@ public class Vertex implements Iterable<Config> {
 	public  List<Integer> getToAdd() {
 		return toAdd;
 	}
+
+	public String vertexOrder() {
+		String s = new String();
+		for(Vertex child: children) {
+			s += child.vertexOrder() + " ";
+		}
+		Iterator<Integer> it = toAdd.iterator();
+		while(it.hasNext()) {
+			s += it.next() + " ";
+		}
+		if (s.endsWith(" "))
+			s = s.substring(0, s.length()-1);
+		return s;
+	}
 }

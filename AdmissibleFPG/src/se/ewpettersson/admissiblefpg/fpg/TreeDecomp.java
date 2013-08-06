@@ -173,8 +173,8 @@ public class TreeDecomp {
 	
 	
 	public boolean isAdmissible() {
-		//return root.hasConfig();
-		return (root.getConfigs().size() > 0);
+		return root.hasConfig();
+		//return (root.getConfigs().size() > 0);
 	}
 	
 	public List<Edge> getEdges() {
@@ -225,6 +225,12 @@ public class TreeDecomp {
 
 	public int getMaxConfigs() {
 		return root.getMaxConfigs();
+	}
+
+	public String vertexOrder() {
+		String s = new String();
+		s+= root.vertexOrder();
+		return s;
 	}
 
 
