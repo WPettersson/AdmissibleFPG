@@ -4,22 +4,66 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class EdgeConfig {
+	
+	public class Pair {
+		TFE[] pair;
+		int degree;
+		public Pair(TFE a, TFE b) {
+			super();
+			pair = new TFE[2];
+			pair[0] = a;
+			pair[1] = b;
+			degree = 0;
+		}
+
+		public Pair(TFE a, TFE b, int d) {
+			super();
+			pair = new TFE[2];
+			pair[0] = a;
+			pair[1] = b;
+			degree = d;
+		}
+		
+		public Pair clone() {
+			Pair p = new Pair(pair[0],pair[1],degree);
+			return p;
+		}
+		
+		public TFE[] getPairs() {
+			return pair;
+
+		}
+
+		public void increaseDegree() {
+			degree++;
+			
+		}
+
+		public boolean degreeOk() {
+			return degree >= 3;
+		}
+		
+	}
+	
+	
+	List<Pair> pairs;
+	
 	public EdgeConfig() {
 		super();
-		pairs = new LinkedList<TFE[]>();
+		pairs = new LinkedList<Pair>();
 		
 
 	}
 
 	public EdgeConfig(EdgeConfig ec) {
-		pairs = new LinkedList<TFE[]>();
-		for(TFE[] entry: ec.getPairs()) {
-			TFE[] newEntry = entry.clone();
+		pairs = new LinkedList<Pair>();
+		for(Pair entry: ec.getPairs()) {
+			Pair newEntry = (Pair) entry.clone();
 			pairs.add(newEntry);
 		}
 	}
 
-	public List<TFE[]> getPairs() {
+	public List<Pair> getPairs() {
 		return pairs;
 	}
 
@@ -28,36 +72,36 @@ public class EdgeConfig {
 
 		pair[0] = new TFE(i,2,1);
 		pair[1] = new TFE(i,3,1);
-		pairs.add(pair);
+		pairs.add(new Pair(pair[0],pair[1]));
 		
 		pair = new TFE[2];
 		pair[0] = new TFE(i,1,2);
 		pair[1] = new TFE(i,3,2);
-		pairs.add(pair);
+		pairs.add(new Pair(pair[0],pair[1]));
 		
 		pair = new TFE[2];
 		pair[0] = new TFE(i,1,3);
 		pair[1] = new TFE(i,2,3);
-		pairs.add(pair);
+		pairs.add(new Pair(pair[0],pair[1]));
 		
 		pair = new TFE[2];
 		pair[0] = new TFE(i,0,4);
 		pair[1] = new TFE(i,3,4);
-		pairs.add(pair);
+		pairs.add(new Pair(pair[0],pair[1]));
 		
 		pair = new TFE[2];
 		pair[0] = new TFE(i,0,5);
 		pair[1] = new TFE(i,2,5);
-		pairs.add(pair);
+		pairs.add(new Pair(pair[0],pair[1]));
 		
 		pair = new TFE[2];
 		pair[0] = new TFE(i,0,6);
 		pair[1] = new TFE(i,1,6);
-		pairs.add(pair);
+		pairs.add(new Pair(pair[0],pair[1]));
 		
 	}
 	
-	List<TFE[]> pairs;
+
 	
 	public int numPairs() {
 		return pairs.size();
@@ -66,12 +110,16 @@ public class EdgeConfig {
 	public boolean addGluing(TFE [] gluing) {
 		TFE pairOne = null;
 		TFE removePair[] = null;
-		for(TFE p[] : pairs) {
+		for(Pair pair : pairs) {
+			TFE[] p = pair.getPairs();
 			int o = p[0].orientTo(gluing[0]);
 			if (o != 0) {
 				int o2 = p[1].orientTo(gluing[1]);
 				if (o2 == o) {
 					// MINIMAL
+					if (!pair.degreeOk()) {
+						return false;
+					}
 					// Can remove this pair as it's being closed up.
 					pairs.remove(p);
 					return true;
@@ -91,6 +139,7 @@ public class EdgeConfig {
 						pairOne.edge=-pairOne.edge;
 					}
 					p[0] = pairOne;
+					pair.increaseDegree();
 					pairs.remove(removePair);
 					return true;
 				}
@@ -100,6 +149,9 @@ public class EdgeConfig {
 				int o2 = p[0].orientTo(gluing[1]);
 				if (o2 == o) {
 					// MINIMAL
+					if (!pair.degreeOk()) {
+						return false;
+					}
 					// Can remove this pair as it's being closed up.
 					pairs.remove(p);
 					return true;
@@ -119,6 +171,7 @@ public class EdgeConfig {
 						pairOne.edge=-pairOne.edge;
 					}
 					p[1] = pairOne;
+					pair.increaseDegree();
 					pairs.remove(removePair);
 					return true;
 				}
@@ -136,6 +189,7 @@ public class EdgeConfig {
 						pairOne.edge=-pairOne.edge;
 					}
 					p[0] = pairOne;
+					pair.increaseDegree();
 					pairs.remove(removePair);
 					return true;
 				}
@@ -153,6 +207,7 @@ public class EdgeConfig {
 						pairOne.edge=-pairOne.edge;
 					}
 					p[1] = pairOne;
+					pair.increaseDegree();
 					pairs.remove(removePair);
 					return true;
 				}
@@ -165,7 +220,8 @@ public class EdgeConfig {
 	
 	public String toString() {
 		String s= "[";
-		for(TFE[] p : pairs) {
+		for(Pair pair : pairs) {
+			TFE[] p = pair.getPairs();
 			s+= "["+ p[0].toString() + " to " + p[1].toString() + "], ";
 		}
 		if (s.endsWith(", ")) {
@@ -175,7 +231,8 @@ public class EdgeConfig {
 	}
 
 	public boolean pairs(TFE p1, TFE p2) {
-		for(TFE p[] : pairs) {
+		for(Pair pair : pairs) {
+			TFE[] p = pair.getPairs();
 			if ((p[0] == p1 && p[1] == p2) || (p[0] == p2 && p[1] == p1)) {
 				return true;
 			}
@@ -184,7 +241,8 @@ public class EdgeConfig {
 	}
 	
 	public boolean equals(EdgeConfig other) {
-		for(TFE p[]: pairs) {
+		for(Pair pair : pairs) {
+			TFE[] p = pair.getPairs();
 			if( ! other.pairs(p[0], p[1])) {
 				return false;
 			}

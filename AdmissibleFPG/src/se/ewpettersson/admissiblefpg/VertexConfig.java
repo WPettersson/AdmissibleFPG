@@ -236,6 +236,12 @@ public class VertexConfig {
 				}
 			}
 			equiv.remove(combined0);
+			if (combined1 == combined0) {
+				if (!equiv.isEmpty()){
+					// Have finished a vertex but still have more to go. Hence more than 1 vertex.
+				}
+				
+			}
 		}
 		
 		
@@ -249,6 +255,9 @@ public class VertexConfig {
 				}
 			}
 			equiv.remove(combined1);
+			if (!equiv.isEmpty()){
+				// Have finished a vertex but still have more to go. Hence more than 1 vertex.
+			}
 		}
 			
 		return true;

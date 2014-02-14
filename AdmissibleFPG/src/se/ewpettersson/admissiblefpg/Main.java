@@ -145,9 +145,6 @@ public class Main {
 				timer.start();
 				adm = t.isAdmissible();
 				timer.stop();
-				if(!adm) {
-					System.err.println("Bad");
-				}
 				treewidth=t.getTW();
 				maxConfigs = t.getMaxConfigs();
 				if(!runTimes.containsKey(treewidth)  )
