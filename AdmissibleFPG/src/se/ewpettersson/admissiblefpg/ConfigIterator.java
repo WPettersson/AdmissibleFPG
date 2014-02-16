@@ -9,6 +9,22 @@ import se.ewpettersson.admissiblefpg.fpg.Vertex;
 
 public class ConfigIterator implements Iterator<Config> {
 
+	
+	public class SymClass {
+		int sym;
+		int f1;
+		int f2;
+		public SymClass() {
+			sym=0;
+			f1=0;
+			f2=0;
+		}
+		
+		public String toString() {
+			return "[" + sym + ":" + f1 + ":" + f2 + "]";
+		}
+	}
+	
 	Vertex v;
 	Config n;
 	
@@ -17,7 +33,8 @@ public class ConfigIterator implements Iterator<Config> {
 	List<Config> configsHere;
 	List<Arc> arcsAdded;
 	Config[] stackConfigs;
-	int[] syms;
+//	int[] syms;
+	List<SymClass> syms;
 	boolean nothing;
 	boolean configsFound;
 	int configsIndex;
@@ -48,7 +65,10 @@ public class ConfigIterator implements Iterator<Config> {
 			}
 		}
 		
-		syms= new int[arcsAdded.size()];
+		syms= new ArrayList<SymClass>();
+		for(int i=0; i < arcsAdded.size(); i++) {
+			syms.add(new SymClass());
+		}
 		changed=0;
 		resetSyms();
 		if (nothing) {
@@ -74,23 +94,36 @@ public class ConfigIterator implements Iterator<Config> {
 	}
 
 	private void resetSyms() {
-		for(int i=0;i<children.size();i++)
-			syms[i]=0;
+		for(SymClass sim: syms) {
+			sim.sym=0;
+			sim.f1=0;
+			sim.f2=0;
+		}
 	}
 	
 	private boolean nextSym(int i) {
 		if (i == arcsAdded.size()) {
 			return false;
 		}
+		SymClass sim = syms.get(i);
 		if( ! nextSym(i+1)) {
-			syms[i]+=1;
+			sim.sym += 1;
 			changed = i;
 		}
-		if ( syms[i] == 6) {
-			syms[i] = 0;
-			return false;
+		if (sim.sym == 6) {
+			sim.sym = 0;
+			sim.f1 += 1;
+			if (sim.f1 == 4) {
+				sim.f1 = 0;
+				sim.f2 += 1;
+				if (sim.f2 == 4) {
+					sim.f2 = 0;
+					syms.set(i,sim);
+					return false;
+				}
+			}
 		}
-
+		syms.set(i, sim);
 		return true;
 	}
 	
@@ -111,6 +144,7 @@ public class ConfigIterator implements Iterator<Config> {
 		}
 		// Look for a new config to return
 		while(c==null) {
+			//System.out.println(syms.toString());
 			// Try to move to the next set of symmetries. If we're totally reset, 
 			// then try to move on to the next config. If we're also out of those,
 			// we're done so return null.
@@ -120,6 +154,7 @@ public class ConfigIterator implements Iterator<Config> {
 				}
 				stackConfigs[0] = makeConfig();
 			}
+
 			// Now add the arcs. If this works, the while loop breaks and we return.
 			// Otherwise the loop continues and we move on to the next symmetry/config.
 			c = addArc(changed);
@@ -215,19 +250,50 @@ public class ConfigIterator implements Iterator<Config> {
 			return stackConfigs[i];
 		}
 		Arc a = arcsAdded.get(i);
-		Gluing g = new Gluing(syms[i],a.t1,a.f1,a.t2,a.f2);
+		SymClass sim = syms.get(i);
 		Config copy = new Config(stackConfigs[i]);
+		if (!copy.onBoundary(a.t1,sim.f1) || 
+			!copy.onBoundary(a.t2,sim.f2)
+			// Don't glue faces to themselves.
+			 || (a.t1 == a.t2 && sim.f1 == sim.f2)
+			// If attempting to glue face 0 to something, only attempt identity mapping
+			 || (sim.f1 == 0 && sim.sym > 0)
+			 || (sim.f2 == 0 && sim.sym > 0)
+			// If face 0 is not glued, don't try other faces
+			|| (sim.f1 > 0 && copy.onBoundary(a.t1, 0))
+			|| (sim.f2 > 1 && a.t1 != a.t2 && copy.onBoundary(a.t2, 0))
+				) {
+//			if (sim.f2 > 1 && a.t1 != a.t2 && copy.onBoundary(a.t2, 0)) {
+//				System.out.println("Skipping on t1,t2="+a.t1+","+a.t2 + " and sim.f2="+sim.f2);
+//				System.out.println(copy.ec.toString());
+//			}
+			for(SymClass sym: syms.subList(i+1, syms.size())) {
+				sym.sym = 5;
+				sym.f1 = 3;
+				sym.f2 = 3;
+			}
+			return null;
+		}
+
+
+		Gluing g = new Gluing(sim.sym,a.t1,sim.f1,a.t2,sim.f2);
+
+//		System.out.println("Gluing "+g);
 		if (copy.addGluing(g) ) {
-//			String desc = "Glued "+g;
-//			copy.addDescription(desc);
+			copy.addDescription(g.toString());
+//			System.out.println(copy.getDescriptions());
+
 			stackConfigs[i+1] = copy;
 			Config good = addArc(i+1);
 			if (good != null) {
 				return good;
 			}
 		} else {
-			for(int k=i+1;k<syms.length;k++)
-				syms[k] = 5;
+			for(SymClass sym: syms.subList(i+1, syms.size())) {
+				sym.sym = 5;
+				sym.f1 = 3;
+				sym.f2 = 3;
+			}
 		}
 		return null;
 	}

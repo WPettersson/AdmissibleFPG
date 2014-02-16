@@ -137,16 +137,24 @@ public class VertexConfig {
 		
 		//System.out.println("Link A:" + linkA);
 		//System.out.println("Link B:" + linkB);
+		//System.out.println("Gluing[0]:" + gluing[0]);
+		//System.out.println("Gluing[1]:" + gluing[1]);
 		// Check to see if the two link-arcs are on the same puncture.
 		boolean samePuncture = false;
 		CircularListNode temp = linkA.getNext();
+		//                              (glue head arcA to tail arcB) == (have we reversed exactly one link-arc)
+		//                              (glue head arcA to tail arcB) != (have we reversed both or neither link-arc)
 		boolean reverseOrient = (gluing[0].edge * gluing[1].edge < 0) != (linkA.data.edge*linkB.data.edge > 0);
 		while ( !temp.equals(linkA) ) {
 			if ( temp.equals(linkB) ) {
 				samePuncture = true;
 				if (reverseOrient) {
-					return false;
+					//if ( linkA != linkB.getNext() && linkA != linkB.getPrev()) {
+						//System.out.println("Mobius strip");
+						return false;
+					//}
 				}
+				break;
 			}
 			temp = temp.getNext();
 		}
@@ -155,11 +163,13 @@ public class VertexConfig {
 			// The link-arcs must be on distinct punctures. Check if they're on the same vertex.
 			if ( equiv.get(combine(gluing[0].tet,gluing[0].vertex)).contains( combine( gluing[1].tet,gluing[1].vertex) ) ) {
 				// Link arcs on distinct punctures, but same vertex.  Bad!
+				//System.out.println("Link arcs on distinct punctures, but same vertex.  Bad!");
 				return false;
 			}
 		}
 		
 
+		
 		if (reverseOrient) {
 			temp = linkB.getNext(); // Iterating "forward" along the old orientation.
 			// Reverse all in linkB
@@ -177,13 +187,15 @@ public class VertexConfig {
 			linkB.setPrev(temp2);
 			linkB.data.edge = -temp.data.edge;
 		}
-	
 		CircularListNode prevA = linkA.getPrev();
 		CircularListNode prevB = linkB.getPrev();
 		CircularListNode nextA = linkA.getNext();
 		CircularListNode nextB = linkB.getNext();
 
-		
+//		String a = linkA.toString();
+//		String b = linkB.toString();
+//		String ga = gluing[0].toString();
+//		String gb = gluing[1].toString();
 		
 		// Check to see whether either linkA or linkB represents a puncture consisting of one edge only.
 		boolean linkASolo = (nextA == linkA);
@@ -207,6 +219,8 @@ public class VertexConfig {
 			nextA.setPrev(prevB);
 		}
 		
+		//System.out.println("New link:" + nextA);
+		
 		links.get(gluing[0].tet).get(gluing[0].vertex).remove(Math.abs(gluing[0].edge));
 		links.get(gluing[1].tet).get(gluing[1].vertex).remove(Math.abs(gluing[1].edge));
 		
@@ -224,9 +238,9 @@ public class VertexConfig {
 		// Note that each of these tetrahedra/vertex pairs have one less boundary edge.
 		onBoundary.put(combined0,onBoundary.get(combined0)-1);
 		onBoundary.put(combined1,onBoundary.get(combined1)-1);
-		
-		// Remove them from all equivalence classes if they are no longer on the boundary	
 
+		boolean vertexClosedOff = false;
+		// Remove them from all equivalence classes if they are no longer on the boundary	
 		if (onBoundary.get(combined0) == 0) {
 			Set<Integer> s = new HashSet<Integer>(equiv.get(combined0));
 			for( Integer i: s ) {
@@ -234,14 +248,12 @@ public class VertexConfig {
 				if (otherList != null) {
 					otherList.remove(combined0);
 				}
+				if (otherList.isEmpty()) {
+					// Have finished vertex
+					vertexClosedOff = true;
+				}
 			}
 			equiv.remove(combined0);
-			if (combined1 == combined0) {
-				if (!equiv.isEmpty()){
-					// Have finished a vertex but still have more to go. Hence more than 1 vertex.
-				}
-				
-			}
 		}
 		
 		
@@ -253,13 +265,16 @@ public class VertexConfig {
 				if(otherList != null) {
 					otherList.remove(combined1);
 				}
+				if (otherList.isEmpty()) {
+					// Have finished vertex
+					vertexClosedOff = true;
+				}
 			}
 			equiv.remove(combined1);
-			if (!equiv.isEmpty()){
-				// Have finished a vertex but still have more to go. Hence more than 1 vertex.
-			}
 		}
-			
+		if (vertexClosedOff && !equiv.isEmpty()) {
+			return false;
+		}
 		return true;
 	}
 	

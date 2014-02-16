@@ -1,12 +1,10 @@
 package se.ewpettersson.admissiblefpg.fpg;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import se.ewpettersson.admissiblefpg.Config;
@@ -23,8 +21,8 @@ public class Vertex implements Iterable<Config> {
 	Set<Integer> below;
 	List<Arc> arcsAdded;
 	
-	Map<Integer,Integer> usedFaces;
-	Map<Integer,Integer> used;
+//	Map<Integer,List<Boolean>> usedFaces;
+//	Map<Integer, List<Boolean>> used;
 	List<Integer> toAdd;
 	Integer id;
 	Integer deg;
@@ -43,14 +41,14 @@ public class Vertex implements Iterable<Config> {
 		deg = null;
 		decomp = d;
 		children = new ArrayList<Vertex>();
-		usedFaces = new HashMap<Integer,Integer>();
-		used = null;
+//		usedFaces = new HashMap<Integer,List<Boolean>>();
+//		used = null;
 	}
 	
-	public Map<Integer, Integer> getUsedFaces() {
-		
-		return usedFaces;
-	}
+//	public Map<Integer, List<Boolean>> getUsedFaces() {
+//		
+//		return usedFaces;
+//	}
 
 	public List<Integer> getContents() {
 		return contents;
@@ -98,7 +96,7 @@ public class Vertex implements Iterable<Config> {
 		maxConfigs=0;
 		for( Vertex child: children) {
 			childrenConfigs.add(child.getConfigs());
-			usedFaces.putAll(child.getFinalUsedFaces());
+//			usedFaces.putAll(child.getFinalUsedFaces());
 			if (child.getMaxConfigs() > maxConfigs)
 				maxConfigs = child.getMaxConfigs();
 			child.forget();
@@ -108,7 +106,12 @@ public class Vertex implements Iterable<Config> {
 		for(Config c: configsToTry) {
 			for(Integer tetToAdd: toAdd) {
 				c.addTetrahedra(tetToAdd);
-				usedFaces.put(tetToAdd, 0);
+//				List<Boolean> usedFacesOnNew = new LinkedList<Boolean>();
+//				usedFacesOnNew.add(false);
+//				usedFacesOnNew.add(false);
+//				usedFacesOnNew.add(false);
+//				usedFacesOnNew.add(false);
+//				usedFaces.put(tetToAdd, usedFacesOnNew);
 			}
 			addArc(c);
 		}
@@ -121,24 +124,29 @@ public class Vertex implements Iterable<Config> {
 		possibleConfigs = null;
 	}
 
-	public Map<Integer,Integer> getFinalUsedFaces() {
-		if (used == null) {
-			used = new HashMap<Integer,Integer>();
-			for(Vertex v: children) {
-				used.putAll(v.getFinalUsedFaces());
-			}
-			for(Integer tetToAdd: toAdd) {
-				used.put(tetToAdd, 0);
-			}
-			for( Arc a: arcsAdded) {
-				a.setF1(used.get(a.t1));
-				used.put(a.t1, used.get(a.t1)+1);
-				a.setF2(used.get(a.t2));
-				used.put(a.t2, used.get(a.t2)+1);
-			}
-		}
-		return used;
-	}
+//	public Map<Integer,List<Boolean>> getFinalUsedFaces() {
+//		if (used == null) {
+//			used = new HashMap<Integer,List<Boolean>>();
+//			for(Vertex v: children) {
+//				used.putAll(v.getFinalUsedFaces());
+//			}
+//			for(Integer tetToAdd: toAdd) {
+//				List<Boolean> usedFacesOnNew = new LinkedList<Boolean>();
+//				usedFacesOnNew.add(false);
+//				usedFacesOnNew.add(false);
+//				usedFacesOnNew.add(false);
+//				usedFacesOnNew.add(false);
+//				used.put(tetToAdd, usedFacesOnNew);
+//			}
+//			for( Arc a: arcsAdded) {
+//				a.setF1(used.get(a.t1));
+//				used.put(a.t1, used.get(a.t1)+1);
+//				a.setF2(used.get(a.t2));
+//				used.put(a.t2, used.get(a.t2)+1);
+//			}
+//		}
+//		return used;
+//	}
 
 	private void addArc(Config c) {
 		if (isRoot && possibleConfigs.size() > 0) {
@@ -152,24 +160,28 @@ public class Vertex implements Iterable<Config> {
 		}
 		Arc a = arcsAdded.get(0);
 		arcsAdded.remove(a);
-		int f1 = usedFaces.get(a.t1);
-		usedFaces.put(a.t1,f1+1);
-		int f2 = usedFaces.get(a.t2);
-		usedFaces.put(a.t2,f2+1);
-		for(int i=0;i<6;i++) {
-			Gluing g = new Gluing(i,a.t1,f1,a.t2,f2);
-			Config copy = new Config(c);
-			//System.out.println("Gluing "+g);
-			if (copy.addGluing(g) ) {
-//				String desc = "Glued "+g;
-//				copy.addDescription(desc);
-				//System.out.println("Glued "+g);
-				addArc(copy);
+		for(int f1 = 0; f1 < 4; f1++) {
+			if (!c.onBoundary(a.t1, f1)) {
+				continue;
+			}
+			for(int f2 = 0; f2 < 4; f2++) {
+				if (!c.onBoundary(a.t2,f2)) {
+					continue;
+				}
+				for(int i=0;i<6;i++) {
+					Gluing g = new Gluing(i,a.t1,f1,a.t2,f2);
+					Config copy = new Config(c);
+					System.out.println("Gluing gggg "+g);
+					if (copy.addGluing(g) ) {
+						//String desc = "Glued "+g;
+		//				copy.addDescription(desc);
+						//System.out.println("Glued "+g);
+						addArc(copy);
+					}
+				}
 			}
 		}
 		// Undo the changes we did.
-		usedFaces.put(a.t2,f2);
-		usedFaces.put(a.t1,f1);
 		arcsAdded.add(0, a);
 	}
 	
@@ -221,7 +233,7 @@ public class Vertex implements Iterable<Config> {
 	}
 	
 	public String toString() {
-		String s = "[Vertex: id="+id+", content="+contents+"]";
+		String s = "[Vertex: id="+id+", content="+contents+", arcsAdded="+arcsAdded.toString()+"]";
 		return s;
 	}
 
@@ -240,10 +252,12 @@ public class Vertex implements Iterable<Config> {
 	}
 
 	public boolean hasConfig() {
-		getFinalUsedFaces();
+//		getFinalUsedFaces();
 		Iterator<Config> it = new ConfigIterator(this);
 		if(it.hasNext()) {
 			maxConfigs = ((ConfigIterator) it).getCount();
+//			System.out.println(it.next().toString());
+//			System.out.println(it.next().getDescriptions());
 			return true;
 		}
 		return false;

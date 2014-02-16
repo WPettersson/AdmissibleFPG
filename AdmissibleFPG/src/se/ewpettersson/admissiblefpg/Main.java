@@ -120,7 +120,7 @@ public class Main {
 			}
 			//totalTime+=timer.getTime();
 			if(ok) {
-				System.out.println(t.vertexOrder());
+				System.out.println(t.toString());
 			}
 
 		}
@@ -139,14 +139,19 @@ public class Main {
 			int maxConfigs=-1;
 			try {
 				timer.start();
-				TreeDecomp t = new TreeDecomp(f);
+				TreeDecomp t=null;
+				if (!f.badGraph()) {
+					t = new TreeDecomp(f);
+					treewidth=t.getTW();
+				}
 				timer.stop();
 				decompTime = timer.getTime();
 				timer.start();
-				adm = t.isAdmissible();
+				if (!f.badGraph()) {
+					adm = t.isAdmissible();
+					maxConfigs = t.getMaxConfigs();
+				}
 				timer.stop();
-				treewidth=t.getTW();
-				maxConfigs = t.getMaxConfigs();
 				if(!runTimes.containsKey(treewidth)  )
 					runTimes.put(treewidth, 0L);
 				runTimes.put(treewidth, runTimes.get(treewidth)+timer.getTime());

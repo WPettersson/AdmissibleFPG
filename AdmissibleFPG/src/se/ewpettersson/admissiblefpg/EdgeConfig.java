@@ -13,7 +13,7 @@ public class EdgeConfig {
 			pair = new TFE[2];
 			pair[0] = a;
 			pair[1] = b;
-			degree = 0;
+			degree = 1;
 		}
 
 		public Pair(TFE a, TFE b, int d) {
@@ -34,13 +34,17 @@ public class EdgeConfig {
 
 		}
 
-		public void increaseDegree() {
-			degree++;
+		public void increaseDegree(int i) {
+			degree+=i;
 			
 		}
 
 		public boolean degreeOk() {
-			return degree >= 3;
+			return degree >= 4;
+		}
+		
+		public String toString() {
+			return "{" + pair[0].toString() + "," + pair[1].toString() + "}";
 		}
 		
 	}
@@ -109,105 +113,123 @@ public class EdgeConfig {
 	
 	public boolean addGluing(TFE [] gluing) {
 		TFE pairOne = null;
-		TFE removePair[] = null;
+		Pair removePair = null;
+		int degree_increase = 0;
+
+		if (gluing[0].tet == gluing[1].tet && gluing[0].edge == gluing[1].edge) {
+//			System.out.println("Loop?");
+//			System.out.println(gluing[0].toString());
+//			System.out.println(gluing[1].toString());
+			degree_increase = 1;
+		}
 		for(Pair pair : pairs) {
-			TFE[] p = pair.getPairs();
-			int o = p[0].orientTo(gluing[0]);
+			int o = pair.pair[0].orientTo(gluing[0]);
 			if (o != 0) {
-				int o2 = p[1].orientTo(gluing[1]);
+				int o2 = pair.pair[1].orientTo(gluing[1]);
 				if (o2 == o) {
 					// MINIMAL
+					pair.increaseDegree(degree_increase);
 					if (!pair.degreeOk()) {
+						//System.out.println("Low degree edge!");
 						return false;
 					}
 					// Can remove this pair as it's being closed up.
-					pairs.remove(p);
+					pairs.remove(pair);
 					return true;
 				}
 				if (o2 == -o) {
 					// Gluing edge to itself in reverse
+					//System.out.println("Edge to itself!");
 					return false;
 				}
 				if (pairOne == null) {
-					pairOne = p[1];
+					pairOne = pair.pair[1];
 					if (o==-1) {
 						pairOne.edge=-pairOne.edge;
 					}
-					removePair = p;
+					removePair = pair;
+					degree_increase += pair.degree;
 				} else {
 					if (o==-1) {
 						pairOne.edge=-pairOne.edge;
 					}
-					p[0] = pairOne;
-					pair.increaseDegree();
+					pair.pair[0] = pairOne;
+					pair.increaseDegree(degree_increase);
+					
 					pairs.remove(removePair);
 					return true;
 				}
 			}
-			o = p[1].orientTo(gluing[0]);
+			o = pair.pair[1].orientTo(gluing[0]);
 			if (o != 0) {
-				int o2 = p[0].orientTo(gluing[1]);
+				int o2 = pair.pair[0].orientTo(gluing[1]);
 				if (o2 == o) {
 					// MINIMAL
+					pair.increaseDegree(degree_increase);
 					if (!pair.degreeOk()) {
+						//System.out.println("Low degree edge!");
 						return false;
 					}
 					// Can remove this pair as it's being closed up.
-					pairs.remove(p);
+					pairs.remove(pair);
 					return true;
 				}
 				if (o2 == -o) {
 					// Gluing edge to itself in reverse
+					//System.out.println("Edge to itself!");
 					return false;
 				}
 				if (pairOne == null) {
-					pairOne = p[0];
+					pairOne = pair.pair[0];
 					if (o==-1) {
 						pairOne.edge=-pairOne.edge;
 					}
-					removePair = p;
+					removePair = pair;
+					degree_increase += pair.degree;
 				} else {
 					if (o==-1) {
 						pairOne.edge=-pairOne.edge;
 					}
-					p[1] = pairOne;
-					pair.increaseDegree();
+					pair.pair[1] = pairOne;
+					pair.increaseDegree(degree_increase);
 					pairs.remove(removePair);
 					return true;
 				}
 			}
-			o = p[0].orientTo(gluing[1]);
+			o = pair.pair[0].orientTo(gluing[1]);
 			if (o != 0) {
 				if (pairOne == null) {
-					pairOne = p[1];
+					pairOne = pair.pair[1];
 					if (o==-1) {
 						pairOne.edge=-pairOne.edge;
 					}
-					removePair = p;
+					removePair = pair;
+					degree_increase += pair.degree;
 				} else {
 					if (o==-1) {
 						pairOne.edge=-pairOne.edge;
 					}
-					p[0] = pairOne;
-					pair.increaseDegree();
+					pair.pair[0] = pairOne;
+					pair.increaseDegree(degree_increase);
 					pairs.remove(removePair);
 					return true;
 				}
 			}
-			o = p[1].orientTo(gluing[1]);
+			o = pair.pair[1].orientTo(gluing[1]);
 			if (o != 0) {
 				if (pairOne == null) {
-					pairOne = p[0];
+					pairOne = pair.pair[0];
 					if (o==-1) {
 						pairOne.edge=-pairOne.edge;
 					}
-					removePair = p;
+					removePair = pair;
+					degree_increase += pair.degree;
 				} else {
 					if (o==-1) {
 						pairOne.edge=-pairOne.edge;
 					}
-					p[1] = pairOne;
-					pair.increaseDegree();
+					pair.pair[1] = pairOne;
+					pair.increaseDegree(degree_increase);
 					pairs.remove(removePair);
 					return true;
 				}
@@ -215,6 +237,7 @@ public class EdgeConfig {
 
 			 
 		}
+		//System.out.println("Bad!");
 		return false;
 	}
 	
@@ -253,6 +276,18 @@ public class EdgeConfig {
 	public void mergeWith(EdgeConfig ec) {
 		pairs.addAll(ec.getPairs());
 		
+	}
+	
+	public boolean onBoundary(int tet, int face) {
+		for (Pair p: pairs) {
+			if (p.pair[0].tet == tet && p.pair[0].face == face) {
+				return true;
+			}
+			if (p.pair[1].tet == tet && p.pair[1].face == face) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

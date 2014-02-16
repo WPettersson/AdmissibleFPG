@@ -48,7 +48,7 @@ public class CircularListNode {
 		CircularListNode temp = getNext();
 		CircularListNode now = this;
 		int i=0;
-		while(temp != null && (!now.equals(temp)) && i < 10) {
+		while(temp != null && (!now.equals(temp)) && i < 101) {
 			s+=temp.getData().toString()+", ";
 			temp=temp.getNext();
 			i++;

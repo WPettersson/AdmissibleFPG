@@ -12,6 +12,7 @@ import nl.uu.cs.treewidth.algorithm.GreedyFillIn;
 import nl.uu.cs.treewidth.algorithm.MaximumMinimumDegreePlusLeastC;
 import nl.uu.cs.treewidth.algorithm.PermutationToTreeDecomposition;
 import nl.uu.cs.treewidth.algorithm.QuickBB;
+import nl.uu.cs.treewidth.algorithm.TreewidthDP;
 import nl.uu.cs.treewidth.input.GraphInput.InputData;
 import nl.uu.cs.treewidth.input.InputException;
 import nl.uu.cs.treewidth.ngraph.NGraph;
@@ -127,6 +128,10 @@ public class TreeDecomp {
 		if( lowerbound == upperbound ) {
 			permutation = ubAlgo.getPermutation();
 		} else {
+//			TreewidthDP<InputData> dpAlgo = new TreewidthDP<InputData>();
+//			dpAlgo.setInput( g );
+//			dpAlgo.run();
+//			permutation = dpAlgo.
 			QuickBB<InputData> qbbAlgo = new QuickBB<InputData>();
 			qbbAlgo.setInput( g );
 			qbbAlgo.run();
@@ -187,16 +192,16 @@ public class TreeDecomp {
 			oneConfig.addTetrahedra(i);
 	}
 	
-	public void glue(int t1, int f1, int t2, int f2, int s) {
+	public boolean glue(int t1, int f1, int t2, int f2, int s) {
 		Gluing g = new Gluing(s, t1, f1, t2, f2);
 		System.out.println("Gluing "+g);
-		oneConfig.addGluing(g);
+		return oneConfig.addGluing(g);
 		
-		System.out.println(oneConfig.getVC().getLinks().get(3).get(1).get(6));
-		System.out.println(oneConfig.getVC().getLinks().get(0).get(1).get(6));
-		
-		System.out.println(oneConfig.getVC().getLinks().get(2).get(0).get(5));
-		System.out.println(oneConfig.getVC().getLinks().get(2).get(1).get(6));
+//		System.out.println(oneConfig.getVC().getLinks().get(3).get(1).get(6));
+//		System.out.println(oneConfig.getVC().getLinks().get(0).get(1).get(6));
+//		
+//		System.out.println(oneConfig.getVC().getLinks().get(2).get(0).get(5));
+//		System.out.println(oneConfig.getVC().getLinks().get(2).get(1).get(6));
 		
 	}
 
@@ -213,7 +218,7 @@ public class TreeDecomp {
 		}
 		if(s.endsWith(", "))
 			s = s.substring(0,s.length()-2);
-		s+="]\n";
+		s+="]\n[";
 		for(Edge e: edges) {
 			s+= e.toString() + ", ";
 		}

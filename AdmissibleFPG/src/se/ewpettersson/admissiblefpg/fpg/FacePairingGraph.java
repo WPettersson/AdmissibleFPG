@@ -13,6 +13,34 @@ public class FacePairingGraph {
 	public List<Arc> getArcs() {
 		return arcs;
 	}
+	
+	boolean isBad;
+	boolean checkedBad;
+	public boolean badGraph() {
+		if (checkedBad) {
+			return isBad;
+		}
+//		int[] chainEnds = new int[tetrahedra.size()];
+		for (Arc a: arcs) {
+			int p = 0;
+			for (Arc b: arcs) {
+				if (a==b) {
+					continue;
+				}
+				if (a.parallel(b)) {
+					p+=1;
+				}
+			}
+			if (p >= 3) {
+				isBad = true;
+				checkedBad = true;
+				return true;
+			}
+		}
+		isBad = false;
+		checkedBad = true;
+		return false;
+	}
 
 	List<Integer> tetrahedra;
 	
@@ -26,7 +54,7 @@ public class FacePairingGraph {
 		}
 		int tet=0;
 		int face=0;
-		
+		checkedBad = false;
 		while(!spl.isEmpty()) {
 			if(face == 0) {
 				tetrahedra.add(tet);
