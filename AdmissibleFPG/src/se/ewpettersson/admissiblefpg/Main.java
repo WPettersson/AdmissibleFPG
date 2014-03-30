@@ -138,7 +138,7 @@ public class Main {
 			}
 			//totalTime+=timer.getTime();
 			if(ok) {
-				System.out.println(t.toString());
+				System.out.println(t.vertexOrder());
 			}
 
 		}
