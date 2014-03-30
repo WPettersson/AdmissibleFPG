@@ -125,8 +125,11 @@ public class Main {
 	}
 	
 	private static void getOrder(Scanner input) {
+		int lines=0;
+		int outputs=0;
 		while(input.hasNextLine()) {
 			String s = input.nextLine();
+			lines+=1;
 			FacePairingGraph f = new FacePairingGraph(s);
 			boolean ok = true;
 			TreeDecomp t = null;
@@ -138,10 +141,14 @@ public class Main {
 			}
 			//totalTime+=timer.getTime();
 			if(ok) {
+				outputs+=1;
+				System.out.println(s);
 				System.out.println(t.vertexOrder());
+			} else {
+				System.err.println("Failed on "+s);
 			}
-
 		}
+		System.err.println(""+lines+" lines read, "+outputs+" orders found");
 	}
 	private static void checkGraphs(Scanner input) {
 		while(input.hasNextLine()) {
