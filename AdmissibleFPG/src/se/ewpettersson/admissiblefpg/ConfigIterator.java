@@ -328,10 +328,12 @@ public class ConfigIterator implements Iterator<Config> {
 			return count;
 		}
 		int num = configsHere.size();
-		for( ConfigIterator childIterator: children) {
-			int childrenSize = childIterator.getCount();
-			if ( childrenSize > num) {
-				num = childrenSize;
+		if (children != null) {
+			for( ConfigIterator childIterator: children) {
+				int childrenSize = childIterator.getCount();
+				if ( childrenSize > num) {
+					num = childrenSize;
+				}
 			}
 		}
 		return num;
