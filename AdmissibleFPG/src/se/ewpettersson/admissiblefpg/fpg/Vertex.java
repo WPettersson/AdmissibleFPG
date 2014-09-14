@@ -257,7 +257,7 @@ public class Vertex implements Iterable<Config> {
 
 	@Override
 	public Iterator<Config> iterator() {
-		return new ConfigIterator(this);
+		return new ConfigIterator(this, false);  // false as we don't need to store the configs we find.
 	}
 
 	public int getNumChildren() {
@@ -271,7 +271,7 @@ public class Vertex implements Iterable<Config> {
 
 	public boolean hasConfig() {
 //		getFinalUsedFaces();
-		Iterator<Config> it = new ConfigIterator(this);
+		Iterator<Config> it = new ConfigIterator(this, false); // false as we don't need to store the configs we find.
 		if(it.hasNext()) {
 			maxConfigs = ((ConfigIterator) it).getCount();
 //			System.out.println(it.next().toString());

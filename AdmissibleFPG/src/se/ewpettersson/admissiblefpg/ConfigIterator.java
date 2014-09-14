@@ -58,11 +58,13 @@ public class ConfigIterator implements Iterator<Config> {
 	int configsIndex;
 	int changed;
 	int count;
+	boolean onlyChild;
 	boolean foundNext;
 	boolean first;
 	
-	public ConfigIterator(Vertex v) {
+	public ConfigIterator(Vertex v, boolean onlyChild) {
 		this.v=v;
+		this.onlyChild = onlyChild;
 		n=null;
 		children = new ArrayList<ConfigIterator>(v.getNumChildren());
 		configs = new ArrayList<Config>(v.getNumChildren());
@@ -74,7 +76,8 @@ public class ConfigIterator implements Iterator<Config> {
 		configsIndex=0;
 		count=-1;
 		for(Vertex child: v.children()) {
-			ConfigIterator it = new ConfigIterator(child);
+			boolean only = ( v.getNumChildren()==1);
+			ConfigIterator it = new ConfigIterator(child, only);
 			children.add(it);
 			if(!it.hasNext()) { // One of the children has no possible configurations, no point proceeding?
 				nothing=true;
@@ -105,7 +108,9 @@ public class ConfigIterator implements Iterator<Config> {
 		}
 		if (!foundNext) {
 			n = recurse();
-			configsHere.add(n);
+			if (!onlyChild) {
+				configsHere.add(n);
+			}
 			foundNext = true;
 		}
 		return (n!=null);
@@ -248,7 +253,9 @@ public class ConfigIterator implements Iterator<Config> {
 		}
 		if(!foundNext) {
 			n = recurse();
-			configsHere.add(n);
+			if (!onlyChild) {
+				configsHere.add(n);
+			}
 		}
 		foundNext = false;
 		return n;
