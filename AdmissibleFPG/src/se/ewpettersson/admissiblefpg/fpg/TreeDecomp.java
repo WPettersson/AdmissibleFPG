@@ -30,7 +30,7 @@ import nl.uu.cs.treewidth.algorithm.GreedyFillIn;
 import nl.uu.cs.treewidth.algorithm.MaximumMinimumDegreePlusLeastC;
 import nl.uu.cs.treewidth.algorithm.PermutationToTreeDecomposition;
 import nl.uu.cs.treewidth.algorithm.QuickBB;
-import nl.uu.cs.treewidth.algorithm.TreewidthDP;
+//import nl.uu.cs.treewidth.algorithm.TreewidthDP;
 import nl.uu.cs.treewidth.input.GraphInput.InputData;
 import nl.uu.cs.treewidth.input.InputException;
 import nl.uu.cs.treewidth.ngraph.NGraph;
