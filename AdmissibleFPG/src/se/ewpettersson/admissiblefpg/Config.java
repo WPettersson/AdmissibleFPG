@@ -18,39 +18,39 @@
  */
 package se.ewpettersson.admissiblefpg;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+//import java.util.List;
 
 
 
 public class Config implements Iterable<Config>{
 	VertexConfig vc;
 	EdgeConfig ec;
-	List<String> description;
+//	List<String> description;
 	
 
-	public List<String> getDescriptions() {
-		return description;
-	}
+//	public List<String> getDescriptions() {
+//		return description;
+//	}
 
 	public Config(Config c) {
 		ec = new EdgeConfig(c.getEC());
 		vc = new VertexConfig(c.getVC());
-		description = new ArrayList<String>();
-		for( String desc: c.getDescriptions()) {
-			description.add(new String(desc));
-		}
+//		description = new ArrayList<String>();
+//		for( String desc: c.getDescriptions()) {
+//			description.add(new String(desc));
+//		}
 	}
 	
 	public Config() {
 		ec = new EdgeConfig();
 		vc = new VertexConfig();
-		description = new ArrayList<String>();
+//		description = new ArrayList<String>();
 	}
 	
 	public void mergeWith(Config d) {
-		description.addAll(d.getDescriptions());
+//		description.addAll(d.getDescriptions());
 		vc.mergeWith(d.getVC());
 		ec.mergeWith(d.getEC());
 	}
@@ -95,13 +95,14 @@ public class Config implements Iterable<Config>{
 
 	}
 
-	public void addDescription(String desc) {
-		description.add(desc);
-		
-	}
+//	public void addDescription(String desc) {
+//		description.add(desc);
+//		
+//	}
 	
 	public String toString() {
-		return description.toString();
+		return "";
+//		return description.toString();
 	}
 
 	@Override

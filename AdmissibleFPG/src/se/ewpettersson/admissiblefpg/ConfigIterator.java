@@ -298,7 +298,7 @@ public class ConfigIterator implements Iterator<Config> {
 
 //		System.out.println("Gluing "+g);
 		if (copy.addGluing(g) ) {
-			copy.addDescription(g.toString());
+//			copy.addDescription(g.toString());
 //			System.out.println(copy.getDescriptions());
 
 			stackConfigs[i+1] = copy;
