@@ -193,6 +193,9 @@ public class Main {
 			} catch (InputException e) {
 				System.err.println("Bad face pairing graph given");
 				ok = false;
+			} catch (OutOfMemoryError e) {
+				System.err.println("Out of memory on "+s);
+				ok = false;
 			}
 			//totalTime+=timer.getTime();
 			if(ok) {
