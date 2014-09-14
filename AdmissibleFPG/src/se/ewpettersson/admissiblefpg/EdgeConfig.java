@@ -18,7 +18,7 @@
  */
 package se.ewpettersson.admissiblefpg;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class EdgeConfig {
@@ -72,13 +72,13 @@ public class EdgeConfig {
 	
 	public EdgeConfig() {
 		super();
-		pairs = new LinkedList<Pair>();
+		pairs = new ArrayList<Pair>();
 		
 
 	}
 
 	public EdgeConfig(EdgeConfig ec) {
-		pairs = new LinkedList<Pair>();
+		pairs = new ArrayList<Pair>();
 		for(Pair entry: ec.getPairs()) {
 			Pair newEntry = (Pair) entry.clone();
 			pairs.add(newEntry);
