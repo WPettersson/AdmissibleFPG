@@ -1,20 +1,159 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="create_run_jar" name="Create Runnable Jar for Project AdmissibleFPG with Jar-in-Jar Loader">
-    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
-    <!--ANT 1.7 is required                                        -->
-    <target name="create_run_jar">
-        <jar destfile="/home/enigma/uni/Regina/AdmissibleFPG.jar">
-            <manifest>
-                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
-                <attribute name="Rsrc-Main-Class" value="se.ewpettersson.admissiblefpg.Main"/>
-                <attribute name="Class-Path" value="."/>
-                <attribute name="Rsrc-Class-Path" value="./ junit.jar hamcrest-core.jar libtw.jar"/>
-            </manifest>
-            <zipfileset src="jar-in-jar-loader.zip"/>
-            <fileset dir="/home/enigma/git/AdmissibleFPG/AdmissibleFPG/bin"/>
-            <zipfileset dir="/usr/lib64/eclipse-3.7/plugins/org.junit_4.8.2.v4_8_2_v20110321-1705" includes="junit.jar"/>
-            <zipfileset dir="/usr/lib64/eclipse-3.7/plugins/org.hamcrest.core_1.1.0.v20090501071000" includes="hamcrest-core.jar"/>
-            <zipfileset dir="/home/enigma/git/AdmissibleFPG/AdmissibleFPG" includes="libtw.jar"/>
-        </jar>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="AdmissibleFPG">
+    <property environment="env"/>
+    <property name="ECLIPSE_HOME" value="../../../../../usr/lib64/eclipse-3.7"/>
+    <property name="junit.output.dir" value="junit"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="JUnit 4.libraryclasspath">
+        <pathelement location="${ECLIPSE_HOME}/plugins/org.junit_4.8.2.v4_8_2_v20110321-1705/junit.jar"/>
+        <pathelement location="${ECLIPSE_HOME}/plugins/org.hamcrest.core_1.1.0.v20090501071000/hamcrest-core.jar"/>
+    </path>
+    <path id="AdmissibleFPG.classpath">
+        <pathelement location="bin"/>
+        <path refid="JUnit 4.libraryclasspath"/>
+        <pathelement location="libtw.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+    <target name="TriangulationTester">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="se.ewpettersson.admissiblefpg.tests.TriangulationTester" todir="${junit.output.dir}"/>
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </junit>
+    </target>
+    <target name="Testing">
+        <java classname="se.ewpettersson.admissiblefpg.Main" failonerror="true" fork="yes">
+            <arg line="/storage/local/AdmissibleResults/test.pairs"/>
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </java>
+    </target>
+    <target name="AdmissibleFPG">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </junit>
+    </target>
+    <target name="TestVertexConfig (1)">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="se.ewpettersson.admissiblefpg.tests.TestVertexConfig" todir="${junit.output.dir}"/>
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </junit>
+    </target>
+    <target name="Default">
+        <java classname="se.ewpettersson.admissiblefpg.Main" failonerror="true" fork="yes">
+            <jvmarg line="-Xms64M"/>
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </java>
+    </target>
+    <target name="TestEdgeConfig">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="se.ewpettersson.admissiblefpg.tests.TestEdgeConfig" todir="${junit.output.dir}"/>
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </junit>
+    </target>
+    <target name="testEdgeConfig">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="tests.testEdgeConfig" todir="${junit.output.dir}"/>
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </junit>
+    </target>
+    <target name="TestVertexConfig.testSamePunctureBadOrientation">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="tests.TestVertexConfig" todir="${junit.output.dir}"/>
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </junit>
+    </target>
+    <target name="TestingGraph">
+        <java classname="se.ewpettersson.admissiblefpg.tests.GraphTester" failonerror="true" fork="yes">
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </java>
+    </target>
+    <target name="TestVertexConfig.testDiffVertex">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="tests.TestVertexConfig" todir="${junit.output.dir}"/>
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </junit>
+    </target>
+    <target name="se.ewpettersson.admissiblefpg.tests">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </junit>
+    </target>
+    <target name="TestVertexConfig">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="tests.TestVertexConfig" todir="${junit.output.dir}"/>
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </junit>
+    </target>
+    <target name="tests">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <classpath refid="AdmissibleFPG.classpath"/>
+        </junit>
+    </target>
+    <target name="junitreport">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
     </target>
 </project>
