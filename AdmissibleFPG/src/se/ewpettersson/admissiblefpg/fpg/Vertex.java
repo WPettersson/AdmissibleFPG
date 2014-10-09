@@ -32,6 +32,7 @@ import se.ewpettersson.admissiblefpg.Gluing;
 public class Vertex implements Iterable<Config> {
 	List<Integer> contents;
 	List<Vertex> children;
+	Vertex parent;
 	List<Config> possibleConfigs;
 	
 	List<List<Config>> childrenConfigs;
@@ -59,6 +60,7 @@ public class Vertex implements Iterable<Config> {
 		deg = null;
 		decomp = d;
 		children = new ArrayList<Vertex>();
+		parent = null;
 //		usedFaces = new HashMap<Integer,List<Boolean>>();
 //		used = null;
 	}
@@ -95,6 +97,7 @@ public class Vertex implements Iterable<Config> {
 
 	public void addChild(Vertex child) {
 		children.add(child);
+		child.parent = this;
 	}
 	
 	public List<Config> getConfigs() {
@@ -267,6 +270,10 @@ public class Vertex implements Iterable<Config> {
 	public  List<Vertex> children() {
 
 		return children;
+	}
+
+	public Vertex parent() {
+		return parent;
 	}
 
 	public boolean hasConfig() {

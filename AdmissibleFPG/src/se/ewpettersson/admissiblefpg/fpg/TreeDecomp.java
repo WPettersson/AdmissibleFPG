@@ -19,6 +19,7 @@
 package se.ewpettersson.admissiblefpg.fpg;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -260,6 +261,23 @@ public class TreeDecomp {
 		if(s.endsWith(", "))
 			s = s.substring(0,s.length()-2);
 		s+="]]";
+		return s;
+	}
+
+	public String toRegina() {
+		String s=vertices.size() + " " + getTW() + "\n";
+		for(Vertex v : vertices) {
+			s+= (v.isRoot ? v.id : v.parent.id);
+			s+= " " + v.contents.size();
+
+			// We will be polite and output the bag in sorted order.
+			// Make a new list, so that this routine remains read-only.
+			ArrayList<Integer> bag = new ArrayList<Integer>(v.contents);
+			Collections.sort(bag);
+			for (Integer i : bag)
+				s += " " + i;
+			s += "\n";
+		}
 		return s;
 	}
 

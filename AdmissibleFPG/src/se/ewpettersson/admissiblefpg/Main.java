@@ -136,7 +136,7 @@ public class Main {
 						System.out.println(t.toPython());
 						break;
 					case OUTPUT_REGINA:
-						System.out.println("To be implemented.");
+						System.out.print(t.toRegina());
 						break;
 				}
 			} else {
