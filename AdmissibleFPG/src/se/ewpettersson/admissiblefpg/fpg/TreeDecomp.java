@@ -246,6 +246,23 @@ public class TreeDecomp {
 		return s;
 	}
 
+	public String toPython() {
+		String s="[[";
+		for(Vertex v : vertices) {
+			s+= "[" + v.id + "," + v.contents + "], ";
+		}
+		if(s.endsWith(", "))
+			s = s.substring(0,s.length()-2);
+		s+="],[";
+		for(Edge e: edges) {
+			s+= "[" + e.get(0).id + "," + e.get(1).id + "], ";
+		}
+		if(s.endsWith(", "))
+			s = s.substring(0,s.length()-2);
+		s+="]]";
+		return s;
+	}
+
 	public int getMaxConfigs() {
 		return root.getMaxConfigs();
 	}

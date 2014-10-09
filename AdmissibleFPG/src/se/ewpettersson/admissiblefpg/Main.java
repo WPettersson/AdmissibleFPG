@@ -133,7 +133,7 @@ public class Main {
 						System.out.println(t.getTW());
 						break;
 					case OUTPUT_PYTHON:
-						System.out.println("To be implemented.");
+						System.out.println(t.toPython());
 						break;
 					case OUTPUT_REGINA:
 						System.out.println("To be implemented.");
