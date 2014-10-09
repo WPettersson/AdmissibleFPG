@@ -37,6 +37,9 @@ public class Main {
 	static Map<Integer,Integer> configCounts;
 	static Map<Integer,Integer> count;
 
+	enum OutputStyle {
+		OUTPUT_ORDER, OUTPUT_WIDTH_ONLY, OUTPUT_PYTHON, OUTPUT_REGINA
+	};
 	
 	public static void main(String[] args) {
 		totalTime = 0;
@@ -44,19 +47,25 @@ public class Main {
 		if (args!=null && args.length > 0) {
 			if (args[0].equals("--show-decomp")) {
 				stdin = new Scanner(System.in);
-	//			try { // Eclipse can't redirect stdin as part of a run configuration.
-	//				stdin = new Scanner(new File("/home/enigma/tmp/AdmissibleResults/6.pairs"));
-	//			} catch (FileNotFoundException e) {
-	//				// TODO Auto-generated catch block
-	//				e.printStackTrace();
-	//			}
-				getOrder(stdin);
+				getWidths(stdin, OutputStyle.OUTPUT_ORDER);
 				System.exit(0);
 			}
 
 			if (args[0].equals("--treewidth-only")) {
 				stdin = new Scanner(System.in);
-				getWidths(stdin);
+				getWidths(stdin, OutputStyle.OUTPUT_WIDTH_ONLY);
+				System.exit(0);
+			}
+
+			if (args[0].equals("--python")) {
+				stdin = new Scanner(System.in);
+				getWidths(stdin, OutputStyle.OUTPUT_PYTHON);
+				System.exit(0);
+			}
+
+			if (args[0].equals("--regina")) {
+				stdin = new Scanner(System.in);
+				getWidths(stdin, OutputStyle.OUTPUT_REGINA);
 				System.exit(0);
 			}
 
@@ -97,28 +106,7 @@ public class Main {
 		//System.err.println(""+count+" graphs took "+totalTime+"ms total, "+(totalTime/count)+"ms per graph on average");
 	}
 	
-	private static void getWidths(Scanner input) {
-		while(input.hasNextLine()) {
-			String s = input.nextLine();
-			FacePairingGraph f = new FacePairingGraph(s);
-			boolean ok = true;
-			int treewidth=-1;
-			try {
-				TreeDecomp t = new TreeDecomp(f);
-				treewidth=t.getTW();
-			} catch (InputException e) {
-				System.err.println("Bad face pairing graph given");
-				ok = false;
-			}
-			//totalTime+=timer.getTime();
-			if(ok) {
-				System.out.println(treewidth);
-			}
-
-		}
-	}
-	
-	private static void getOrder(Scanner input) {
+	private static void getWidths(Scanner input, OutputStyle output) {
 		int lines=0;
 		int outputs=0;
 		while(input.hasNextLine()) {
@@ -136,13 +124,26 @@ public class Main {
 			//totalTime+=timer.getTime();
 			if(ok) {
 				outputs+=1;
-				System.out.println(s);
-				System.out.println(t.vertexOrder());
+				switch (output) {
+					case OUTPUT_ORDER:
+						System.out.println(s);
+						System.out.println(t.vertexOrder());
+						break;
+					case OUTPUT_WIDTH_ONLY:
+						System.out.println(t.getTW());
+						break;
+					case OUTPUT_PYTHON:
+						System.out.println("To be implemented.");
+						break;
+					case OUTPUT_REGINA:
+						System.out.println("To be implemented.");
+						break;
+				}
 			} else {
 				System.err.println("Failed on "+s);
 			}
 		}
-		System.err.println(""+lines+" lines read, "+outputs+" orders found");
+		// System.err.println(""+lines+" lines read, "+outputs+" orders found");
 	}
 	private static void checkGraphs(Scanner input) {
 		while(input.hasNextLine()) {
