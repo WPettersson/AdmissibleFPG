@@ -156,7 +156,7 @@
             <report format="frames" todir="${junit.output.dir}"/>
         </junitreport>
     </target>
-    <target name="create_run_jar">
+    <target description="Create runnable jar file" name="create_run_jar">
         <jar destfile="AdmissibleFPG.jar">
             <manifest>
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
