@@ -23,9 +23,10 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import nl.uu.cs.treewidth.input.InputException;
-
 import se.ewpettersson.admissiblefpg.fpg.FacePairingGraph;
 import se.ewpettersson.admissiblefpg.fpg.TreeDecomp;
 import se.ewpettersson.admissiblefpg.util.Timer;
@@ -66,6 +67,17 @@ public class Main {
 			if (args[0].equals("--regina")) {
 				stdin = new Scanner(System.in);
 				getWidths(stdin, OutputStyle.OUTPUT_REGINA);
+				System.exit(0);
+			}
+			if (args[0].equals("--parallel")) {
+				int threadCount = Integer.parseInt(args[1]);
+				String fname = args[2];
+				try {
+					stdin = new Scanner(new File(fname));
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+				checkGraphsParallel(stdin, threadCount);
 				System.exit(0);
 			}
 
@@ -198,6 +210,26 @@ public class Main {
 			}
 
 			System.err.print(".");
+		}
+	}
+
+	private static void checkGraphsParallel(Scanner input, int threadCount) {
+		runTimes = new HashMap<Integer,Long>();
+		configCounts = new HashMap<Integer,Integer>();
+		count = new HashMap<Integer,Integer>();
+		ExecutorService exec = Executors.newFixedThreadPool(threadCount);
+		int id=0;
+		while(input.hasNextLine()) {
+			String s = input.nextLine();
+			exec.execute(new ThreadedConfigFinder(id,s,runTimes,configCounts,count));
+			id+=1;
+		}
+		exec.shutdown();
+		while (!exec.isTerminated()) {
+
+		}
+		for(Integer key: runTimes.keySet()) {
+			System.err.println("tw: "+key+" graphs took " + runTimes.get(key)/count.get(key) + " avg, maxConfigs = "+configCounts.get(key));;
 		}
 	}
 }
