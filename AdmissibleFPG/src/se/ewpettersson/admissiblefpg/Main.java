@@ -107,11 +107,11 @@ public class Main {
 	}
 	
 	private static void getWidths(Scanner input, OutputStyle output) {
-		int lines=0;
-		int outputs=0;
+//		int lines=0;
+//		int outputs=0;
 		while(input.hasNextLine()) {
 			String s = input.nextLine();
-			lines+=1;
+//			lines+=1;
 			FacePairingGraph f = new FacePairingGraph(s);
 			boolean ok = true;
 			TreeDecomp t = null;
@@ -123,7 +123,7 @@ public class Main {
 			}
 			//totalTime+=timer.getTime();
 			if(ok) {
-				outputs+=1;
+//				outputs+=1;
 				switch (output) {
 					case OUTPUT_ORDER:
 						System.out.println(s);
