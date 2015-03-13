@@ -285,6 +285,7 @@ public class Vertex implements Iterable<Config> {
 //			System.out.println(it.next().getDescriptions());
 			return true;
 		}
+		maxConfigs = ((ConfigIterator) it).getCount();
 		return false;
 	}
 

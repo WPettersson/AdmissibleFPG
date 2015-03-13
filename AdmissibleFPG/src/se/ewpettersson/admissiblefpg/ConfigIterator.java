@@ -74,7 +74,14 @@ public class ConfigIterator implements Iterator<Config> {
 		nothing=false;
 		configsFound=false;
 		configsIndex=0;
+		// If this is not an only child, we will need to re-use configs so we will store them
+		// count=-1 means we have not yet counted them. We count them only when we need to.
 		count=-1;
+		// However if this is the only child, we won't be storing configs at all
+		// So instead keep a live count which starts at 0
+		if (onlyChild) {
+			count = 0;
+		}
 		for(Vertex child: v.children()) {
 			boolean only = ( v.getNumChildren()==1);
 			ConfigIterator it = new ConfigIterator(child, only);
@@ -110,6 +117,8 @@ public class ConfigIterator implements Iterator<Config> {
 			n = recurse();
 			if (!onlyChild) {
 				configsHere.add(n);
+			} else {
+				count+=1;
 			}
 			foundNext = true;
 		}
@@ -253,8 +262,11 @@ public class ConfigIterator implements Iterator<Config> {
 		}
 		if(!foundNext) {
 			n = recurse();
+			// If not only child, store config, else add one to live count
 			if (!onlyChild) {
 				configsHere.add(n);
+			} else {
+				count+=1;
 			}
 		}
 		foundNext = false;
