@@ -229,7 +229,7 @@ public class Main {
 
 		}
 		for(Integer key: runTimes.keySet()) {
-			System.err.println("tw: "+key+" graphs took " + runTimes.get(key)/count.get(key) + " avg, maxConfigs = "+configCounts.get(key));;
+			System.out.println("tw:"+key+", "+count.get(key)+" graphs took " + runTimes.get(key)/count.get(key) + " avg, maxConfigs = "+configCounts.get(key));;
 		}
 	}
 }
